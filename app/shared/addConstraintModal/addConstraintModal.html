@@ -1,0 +1,20 @@
+<div class="modal-header">
+    <span class="h2">Adding Schedule Constraint</span>
+</div>
+<div class="modal-body">
+    <form role="form">
+        <div class="form-group">
+            <label for="constraintTypeSelect">Constraint type</label>
+            <select class="form-control" id="constraintTypeSelect" ng-model="event.title" ng-options="opt for opt in options"></select>
+        </div>
+        <div class="form-group">
+            <label for="startTimeInput">Start time</label>
+            <input type="time" class="form-control" id="startTimeInput" ng-model="event.start">
+        </div>
+        <div class="form-group">
+            <label for="endTimeInput">End time</label>
+            <input type="time" class="form-control" id="endTimeInput" ng-model="event.end">
+        </div>
+        <button type="submit" class="btn btn-default" ng-click="$close(event)">Save</button>
+    </form>
+</div>

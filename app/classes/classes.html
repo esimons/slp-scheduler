@@ -1,0 +1,60 @@
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-primary panel-well">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <span class="h3 panel-title">Class List</span>
+                    </div>
+                    <div class="col-sm-2">
+                        <span class="fa fa-plus-square fa-2x pull-right clickable" ng-click="openNewClassModal()"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="list-group">
+                    <a class="list-group-item" ng-class="{active: classes.isSelected(class)}" ng-if="classes.list.length > 0" ng-repeat="class in classes.list" ng-click="classes.select(class)">
+                        {{class.name}}
+                        <div class="pull-right fa fa-times fa-lg hover-delete" ng-click="classes.delete($index);$event.stopPropagation();"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3" ng-show="classes.selected">
+        <!--<div class="panel panel-primary panel-well">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <span class="h3 panel-title">{{students.selected.firstName}}'s Services (per week)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="form-group" ng-repeat="service in students.selected.services">
+                    <label>
+                        {{service.name}}
+                        <input type="number" min="0" class="form-control" ng-model="service.number">
+                    </label>
+                </div>
+            </div>
+        </div>-->
+    </div>
+    <div class="col-sm-6" ng-show="classes.selected">
+        <div class="panel panel-primary panel-well">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <span class="h3 panel-title">Constraints for {{classes.selected.name}} Students</span>
+                    </div>
+                    <div class="col-sm-2">
+                        <span class="fa fa-plus-square fa-2x pull-right clickable" ng-click="openNewConstraintModal()"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div ui-calendar="calendarConfig" ng-model="eventSources" calendar="classCalendar"></div>
+            </div>
+        </div>
+    </div>
+</div>

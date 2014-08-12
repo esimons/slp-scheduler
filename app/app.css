@@ -1,0 +1,30 @@
+.panel.panel-well {
+    background-color: #3A696D;
+}
+
+.fa.fa-plus-square.clickable:hover {
+    color: #77bfa1;
+}
+
+.clickable:hover {
+    cursor: pointer;
+}
+
+.hover-delete {
+    visibility: hidden;
+    z-index: 0;
+}
+
+.list-group-item:hover .hover-delete {
+    visibility: visible;
+    z-index: 100;
+}
+
+.hover-delete:hover {
+    color: #ffffff;
+    cursor: pointer;
+}
+
+#autoschedule-btn {
+    margin-top: 5px;
+}

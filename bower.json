@@ -1,0 +1,16 @@
+{
+  "name": "easy-slp-scheduler",
+  "description": "Front-end software for school-based SLPs to schedule their work week",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular-bootstrap": "latest",
+    "angular-ui-router": "latest",
+    "angular": "latest",
+    "bootstrap": "latest",
+    "bootswatch": "latest",
+    "angular-ui-calendar": "latest",
+    "fontawesome": "latest",
+    "ngtoast": "latest"
+  },
+  "private": true
+}

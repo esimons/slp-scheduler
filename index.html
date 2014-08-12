@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Easy SLP Scheduler</title>
+    <link rel="stylesheet" href="app/app.css">
+    <link rel="stylesheet" href="bower_components/bootswatch/amelia/bootstrap.css">
+    <!--<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">-->
+    <link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.css">
+    <link rel="stylesheet" href="bower_components/fullcalendar/fullcalendar.css">
+    <link rel="stylesheet" href="bower_components/jquery-ui/themes/ui-lightness/jquery-ui.css">
+    <link rel="stylesheet" href="bower_components/ngtoast/dist/ngToast.css">
+</head>
+<body>
+
+<div ng-app="easy-slp-scheduler">
+    <div class="container">
+        <div navbar></div>
+        <div ui-view></div>
+    </div>
+    <ng-toast></ng-toast>
+</div>
+
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
+<script src="bower_components/fullcalendar/fullcalendar.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/angular-ui-calendar/src/calendar.js"></script>
+<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/ngtoast/dist/ngToast.js"></script>
+
+<script src="app/app.js"></script>
+<script src="app/navbar/navbar.js"></script>
+<script src="app/classes/classesCtrl.js"></script>
+<script src="app/classes/classesModal/classModalCtrl.js"></script>
+<script src="app/services/servicesCtrl.js"></script>
+<script src="app/services/servicesModal/serviceModalCtrl.js"></script>
+<script src="app/caseload/caseloadCtrl.js"></script>
+<script src="app/caseload/studentModal/studentModalCtrl.js"></script>
+<script src="app/schedule/scheduleCtrl.js"></script>
+<script src="app/shared/addConstraintModal/addConstraintModalCtrl.js"></script>
+<script src="app/shared/caseloadSrvc.js"></script>
+<script src="app/shared/testdataSrvc.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-primary panel-well">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <span class="h3 panel-title">Student List</span>
+                    </div>
+                    <div class="col-sm-2">
+                        <span class="fa fa-plus-square fa-2x pull-right clickable" ng-click="openNewStudentModal()"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="list-group">
+                    <a class="list-group-item" ng-class="{active: students.isSelected(student)}" ng-repeat="student in students.list" ng-click="students.select(student)">
+                        {{student.firstName}} {{student.lastName}}
+                        <div class="pull-right fa fa-times fa-lg hover-delete" ng-click="students.delete($index);$event.stopPropagation();"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3" ng-show="students.selected">
+        <div class="panel panel-primary panel-well">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <span class="h3 panel-title">{{students.selected.firstName}}'s Services (per week)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="form-group" ng-repeat="serviceReq in students.selected.serviceReqs">
+                    <label>
+                        {{serviceReq.service.name}}
+                        <input type="number" min="0" class="form-control" ng-model="serviceReq.number" ng-change="test(serviceReq.number, $index)">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6" ng-show="students.selected">
+        <div class="panel panel-primary panel-well">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <span class="h3 panel-title">{{students.selected.firstName}}'s Schedule View</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div ui-calendar="calendarConfig" ng-model="events" calendar="studentCalendar"></div>
+            </div>
+        </div>
+    </div>
+</div>

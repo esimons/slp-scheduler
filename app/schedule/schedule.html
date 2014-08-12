@@ -1,0 +1,26 @@
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-primary panel-well">
+            <div class="panel-heading">
+                <span class="h3 panel-title">Services To Schedule</span>
+                <span class="badge">{{serviceSort.unscheduledCount}}</span>
+                <span class="fa fa-sort pull-right clickable" ng-click="serviceSort.change()"></span>
+                <button id="autoschedule-btn" class="btn btn-default btn-xs btn-block" ng-click="autoSchedule()">AutoSchedule</button>
+            </div>
+            <div class="panel-body">
+                <div class="list-group">
+                    <!--<a class="list-group-item" ng-repeat="student in serviceSort.get()" href="#">
+                        {{student.firstName}} {{student.lastName}}
+                    </a>-->
+                    <a class="list-group-item" ng-repeat="item in serviceSort.result" ng-click="select(item)" ng-class="{active: isSelected(item)}">
+                        {{item.student.firstName}} {{item.student.lastName}}: {{item.appt.service.name}}
+                        <span class="badge">{{item.count}}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-9">
+        <div ui-calendar="calendarConfig" ng-model="eventSources" calendar="schedule"></div>
+    </div>
+</div>
