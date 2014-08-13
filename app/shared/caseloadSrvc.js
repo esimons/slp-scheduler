@@ -43,8 +43,8 @@ angular.module('easy-slp-scheduler')
                     var servReq = self.students.list[i].serviceReqs[j];
                     if(servReq.service === elem[0]){
                         self.students.list[i].serviceReqs.splice(j, 1);
+                        break;
                     }
-                    break;
                 }
                 var servAppts = [];
                 for(var j=0; j<self.students.list[i].serviceAppts.length; j++){
