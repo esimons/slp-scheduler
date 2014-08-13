@@ -63,7 +63,8 @@ angular.module('easy-slp-scheduler')
                 right: ''
             },
             defaultView: 'agendaWeek',
-            year: 0,
+            weekends: false,
+            year: 1990,
             month: 0,
             date: 1,
             columnFormat: {
