@@ -14,7 +14,10 @@ angular.module('easy-slp-scheduler')
             selected: null,
             select: function(classy){
                 this.selected = classy;
-                //$scope.eventSources = [classy.constraints];
+                $scope.events.splice(0, $scope.events.length);
+                for(var i=0; i<classy.constraints.length; i++){
+                    $scope.events.push(classy.constraints[i]);
+                }
             },
             isSelected: function(classy){
                 if(this.selected === classy)
@@ -51,6 +54,10 @@ angular.module('easy-slp-scheduler')
                     constraintTypes: function(){ return defaultConstraintTypes; },
                     initEvent: function(){ return initEvent; }
                 }
+            });
+            modalInstance.result.then(function(event){
+                $scope.events.push(event);
+                $scope.classes.selected.constraints.push(event);
             });
         };
 
