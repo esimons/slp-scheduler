@@ -33,6 +33,7 @@ angular.module('easy-slp-scheduler')
         self.students.list.subscribeToAdd(function(elem, arr){
             for(var i=0; i<self.services.list.length; i++){
                 elem.serviceReqs.push(new ServiceReq(self.services.list[i]));
+                elem.serviceAppts.push(new ServiceAppointmentList(self.services.list[i]));
             }
         });
 
@@ -74,6 +75,7 @@ angular.module('easy-slp-scheduler')
             this.lastName = lastName;
             this.serviceReqs = [];
             this.serviceAppts = [];
+            this.constraints = [];
         }
         this.Student = Student;
 
