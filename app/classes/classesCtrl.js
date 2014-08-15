@@ -14,14 +14,9 @@ angular.module('easy-slp-scheduler')
             selected: null,
             select: function(classy){
                 this.selected = classy;
-                $scope.events.splice(0, $scope.events.length);
-                for(var i=0; i<classy.constraints.length; i++){
-                    $scope.events.push(classy.constraints[i]);
-                }
+                $scope.classEvents.events = classy.constraints;
             },
             isSelected: function(classy){
-                if(this.selected === classy)
-                    $scope.classCalendar.fullCalendar('render');
                 return this.selected === classy;
             },
             delete: function(index){
@@ -50,14 +45,13 @@ angular.module('easy-slp-scheduler')
                 templateUrl: 'app/shared/addConstraintModal/addConstraintModal.html',
                 controller: 'addConstraintModalCtrl',
                 resolve: {
-                    events: function(){ return $scope.classes.selected; },
                     constraintTypes: function(){ return defaultConstraintTypes; },
                     initEvent: function(){ return initEvent; }
                 }
             });
             modalInstance.result.then(function(event){
-                $scope.events.push(event);
                 $scope.classes.selected.constraints.push(event);
+                $scope.classEvents.events = $scope.classes.selected.constraints;
             });
         };
 
@@ -90,7 +84,9 @@ angular.module('easy-slp-scheduler')
             }
         }
 
-        $scope.events = [];
-        $scope.eventSources = [$scope.events];
+        $scope.classEvents = {
+            events: []
+        };
+        $scope.eventSources = [$scope.classEvents];
 
     });
