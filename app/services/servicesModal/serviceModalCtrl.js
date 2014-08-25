@@ -3,5 +3,5 @@
  */
 angular.module('easy-slp-scheduler')
     .controller('newServiceModal', function($scope, caseloadService){
-        $scope.class = new caseloadService.Service();
+        $scope.service = new caseloadService.Service();
     });

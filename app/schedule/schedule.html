@@ -23,10 +23,20 @@
     <div class="col-sm-9">
         <div class="panel panel-primary panel-well">
             <div class="panel-heading">
-                <span class="h3 panel-title">Your Schedule</span>
+                <div class="row">
+                    <div class="col-sm-9">
+                        <span class="h3 panel-title">Your Schedule</span>
+                    </div>
+                    <div class="col-sm-3">
+                        <div style="border: 2px solid gray; border-radius: 5px; padding: 5px">
+                            <span class="glyphicon glyphicon-search"></span>
+                            <input type="range" min="0" max={{zoom.levels.length-1}} ng-model="zoom.current" style="width: calc(100% - 28px); display: inline-block; vertical-align: bottom; margin-left: 10px">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="panel-body">
-                <div ui-calendar="calendarConfig" ng-model="eventSources" calendar="schedule"></div>
+                <div id="your-schedule" ui-calendar="calendarConfig" ng-model="eventSources" calendar="schedule" ng-class="'slot-height-' + calendarConfig.slotHeight"></div>
             </div>
         </div>
     </div>

@@ -4,12 +4,14 @@
 angular.module('easy-slp-scheduler')
 .service('testdataService', function(caseloadService){
 
-        caseloadService.students.list.push(new caseloadService.Student('Evan', 'Simons'));
-        caseloadService.students.list.push(new caseloadService.Student('Lauren', 'Simons'));
-        caseloadService.students.list.push(new caseloadService.Student('Elliot', 'Simons'));
+        var klass = new caseloadService.Class('First Grade', 'Mr. F');
+
+        caseloadService.students.list.push(new caseloadService.Student('Evan', 'Simons', klass));
+        caseloadService.students.list.push(new caseloadService.Student('Lauren', 'Simons', klass));
+        caseloadService.students.list.push(new caseloadService.Student('Elliot', 'Simons', klass));
 
         caseloadService.services.list.push(new caseloadService.Service('Articulation'));
         caseloadService.services.list.push(new caseloadService.Service('Language'));
 
-        caseloadService.classes.list.push({name: 'First Grade', teacher: 'Mr. F', constraints: []});
+        caseloadService.classes.list.push(klass);
     });

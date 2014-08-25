@@ -28,10 +28,7 @@ angular.module('easy-slp-scheduler')
         $scope.openNewClassModal = function(){
             var modalInstance = $modal.open({
                 templateUrl: 'app/classes/classesModal/newClassModal.html',
-                controller: 'newClassModal',
-                resolve: {
-                    classes: function(){ return caseloadService.classes.list; }
-                }
+                controller: 'newClassModal'
             });
 
             modalInstance.result.then(function(classy){

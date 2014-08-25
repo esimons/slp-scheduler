@@ -4,5 +4,5 @@
 angular.module('easy-slp-scheduler')
     .controller('newStudentModal', function($scope, classes, caseloadService){
         $scope.student = new caseloadService.Student();
-        $scope.classes = classes;
+        $scope.classes = caseloadService.classes.list;
     });

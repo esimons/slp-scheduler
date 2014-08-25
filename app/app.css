@@ -28,3 +28,28 @@
 #autoschedule-btn {
     margin-top: 5px;
 }
+
+#your-schedule.slot-height-40 .fc-agenda-slots td div {
+    height: 40px !important;
+}
+#your-schedule.slot-height-45 .fc-agenda-slots td div {
+    height: 45px !important;
+}
+#your-schedule.slot-height-50 .fc-agenda-slots td div {
+    height: 50px !important;
+}
+#your-schedule.slot-height-55 .fc-agenda-slots td div {
+    height: 55px !important;
+}
+#your-schedule.slot-height-60 .fc-agenda-slots td div {
+    height: 60px !important;
+}
+#your-schedule.slot-height-65 .fc-agenda-slots td div {
+    height: 65px !important;
+}
+#your-schedule.slot-height-70 .fc-agenda-slots td div {
+    height: 70px !important;
+}
+#your-schedule.slot-height-75 .fc-agenda-slots td div {
+    height: 75px !important;
+}

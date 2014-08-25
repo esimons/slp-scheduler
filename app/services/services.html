@@ -21,26 +21,26 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-3" ng-show="services.selected">
-        <!--<div class="panel panel-primary panel-well">
+    <div class="col-sm-3" ng-if="services.selected">
+        <div class="panel panel-primary panel-well">
             <div class="panel-heading">
                 <div class="row">
                     <div class="col-sm-10">
-                        <span class="h3 panel-title">{{students.selected.firstName}}'s Services (per week)</span>
+                        <span class="h3 panel-title">Configure {{services.selected.name}}</span>
                     </div>
                 </div>
             </div>
             <div class="panel-body">
-                <div class="form-group" ng-repeat="service in students.selected.services">
+                <div class="form-group">
                     <label>
-                        {{service.name}}
-                        <input type="number" min="0" class="form-control" ng-model="service.number">
+                        Default appointment length:
+                        <input type="number" min="0" class="form-control" ng-model="services.selected.defaultDuration" placeholder="Minutes">
                     </label>
                 </div>
             </div>
-        </div>-->
+        </div>
     </div>
-    <div class="col-sm-6" ng-show="services.selected">
+    <div class="col-sm-6" ng-if="services.selected">
         <!--<div class="panel panel-primary panel-well">
             <div class="panel-heading">
                 <div class="row">

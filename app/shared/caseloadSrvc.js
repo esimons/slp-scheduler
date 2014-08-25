@@ -2,20 +2,73 @@
  * Created by Evan on 7/22/2014.
  */
 angular.module('easy-slp-scheduler')
-    .service('caseloadService', function(){
+    .service('caseloadService', function($rootScope){
         var self = this;
 
         self.services = {
-            list: new ObservableArray()
+            list: ObservableArray(), //TODO: Replace the ObservableArray with standard array, move observable-ness into parent object
+            add: function(service){
+                var len = self.services.list.push(service);
+                var subs = self.services_subscribers.toAddition;
+                for(var i=0; i<subs.length; i++){
+                    subs[i](service, self.services.list);
+                }
+                return len;
+            },
+            remove: angular.noop,
+            _subscribers: {
+                toAddition: [],
+                toRemoval: []
+            }
         };
         self.students = {
-            list: new ObservableArray()
+            list: ObservableArray()
         };
         self.classes = {
-            list: new ObservableArray()
+            list: ObservableArray()
         };
 
         self.appointments = [];
+
+        self.save = function(){
+            var json = {
+                services: self.services.list,
+                students: self.students.list,
+                classes: self.classes.list,
+                appointments: self.appointments.list
+            };
+            var s = Cryo.stringify(json);
+            var o = Cryo.parse(s);
+
+            var a = document.createElement('a');
+            a.download = "Save.slp";
+            a.href = "data:text/json;base64," + btoa(s);
+            a.click();
+        };
+
+        self.load = function(file){
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = function(){
+                var file = input.files[0];
+                var reader = new FileReader();
+                reader.onload = fileHandler;
+                reader.readAsText(file);
+
+                function fileHandler(e){
+                    var result = e.target.result;
+                    var obj = Cryo.parse(result);
+
+                    /*self.services.list = obj.services;
+                    self.students.list = obj.students;
+                    self.classes.list = obj.classes;
+                    self.appointments = obj.appointments;
+                    $rootScope.$apply();*/
+                    console.info(obj);
+                }
+            };
+            input.click();
+        };
 
         /*
          *  Wiring up observers to handle changes in collections
@@ -70,14 +123,23 @@ angular.module('easy-slp-scheduler')
 
         });
 
-        function Student(firstName, lastName){
+        function Student(firstName, lastName, group){
             this.firstName = firstName;
             this.lastName = lastName;
+            this.class = group || null;
             this.serviceReqs = [];
             this.serviceAppts = [];
             this.constraints = [];
         }
         this.Student = Student;
+
+        function Class(name, teacher){
+            this.name = name || null;
+            this.teacher = teacher || null;
+            this.students = [];
+            this.constraints = [];
+        }
+        this.Class = Class;
 
         this.ServiceSchedule = function ServiceSchedule(){
             this.events = [];
@@ -86,6 +148,7 @@ angular.module('easy-slp-scheduler')
 
         function Service(name){
             this.name = name;
+            this.defaultDuration = 30;
         }
         this.Service = Service;
 
@@ -129,31 +192,30 @@ angular.module('easy-slp-scheduler')
         ServiceAppointmentList.prototype.constructor = Array;
 
         function ObservableArray(){
-            Array.call(this);
+            var arr = [];
             var _addSubscribers = [];
             var _removeSubscribers = [];
-            this.push = function(elem){
-                var ret = Array.prototype.push.call(this, elem);
+            arr.push = function(elem){
+                var ret = Array.prototype.push.call(arr, elem);
                 for(var i=0; i<_addSubscribers.length; i++){
-                    _addSubscribers[i](elem, this);
+                    _addSubscribers[i](elem, arr);
                 }
                 return ret;
             };
-            this.splice = function(index, howMany){
-                var ret = Array.prototype.splice.call(this, index, howMany);
+            arr.splice = function(index, howMany){
+                var ret = Array.prototype.splice.call(arr, index, howMany);
                 for(var i=0; i<_removeSubscribers.length; i++){
-                    _removeSubscribers[i](ret, this);
+                    _removeSubscribers[i](ret, arr);
                 }
                 return ret;
             };
-            this.subscribeToAdd = function(fn){
+            arr.subscribeToAdd = function(fn){
                 _addSubscribers.push(fn);
             };
-            this.subscribeToRemove = function(fn){
+            arr.subscribeToRemove = function(fn){
                 _removeSubscribers.push(fn);
             };
+            return arr;
         }
-        ObservableArray.prototype = Object.create(Array.prototype);
-        ObservableArray.prototype.constructor = Array;
 
     });

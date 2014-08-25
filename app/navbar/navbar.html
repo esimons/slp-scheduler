@@ -20,7 +20,14 @@
                 <li ng-class="{active: $state.includes('schedule')}"><a ui-sref="schedule">Schedule</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">Options</a></li>
+                <li dropdown is-open="file.menuIsOpen">
+                        <a href class="dropdown-toggle">File <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href ng-click="file.save()"><span class="fa fa-download" style="margin-right: 12px"></span>Save</a></li>
+                            <li><a href ng-click="file.load()"><span class="fa fa-upload" style="margin-right: 12px"></span>Load</a></li>
+                        </ul>
+                </li>
+                <li><a href="#" ng-click="save()">Options</a></li>
                 <li><a href="#">Help</a></li>
                 <li><a href="#">About</a></li>
             </ul>
