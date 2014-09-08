@@ -3,32 +3,82 @@
  */
 angular.module('easy-slp-scheduler')
     .service('caseloadService', function($rootScope){
+
         var self = this;
 
-        self.services = {
-            list: ObservableArray(), //TODO: Replace the ObservableArray with standard array, move observable-ness into parent object
-            add: function(service){
-                var len = self.services.list.push(service);
-                var subs = self.services_subscribers.toAddition;
-                for(var i=0; i<subs.length; i++){
-                    subs[i](service, self.services.list);
-                }
-                return len;
-            },
-            remove: angular.noop,
-            _subscribers: {
-                toAddition: [],
-                toRemoval: []
-            }
-        };
-        self.students = {
-            list: ObservableArray()
-        };
-        self.classes = {
-            list: ObservableArray()
-        };
+        self.services = { list: [] };
+        self.students = { list: [] };
+        self.classes = { list: [] };
 
         self.appointments = [];
+
+
+        /*********
+        * Use $rootScope watchers to observe and respond to collection changes
+        *********/
+        $rootScope._modelObs = {
+            services: self.services.list,
+            students: self.students.list,
+            classes: self.classes.list
+        };
+        $rootScope.$watchCollection('_modelObs.students', function(newVal, oldVal){
+            /* Handle the addition of new students */
+            if(newVal.length > oldVal.length){
+                var elem = getElemAdded(newVal, oldVal);
+                for(var i=0; i<self.services.list.length; i++){
+                    elem.serviceReqs.push(new ServiceReq(self.services.list[i]));
+                    elem.serviceAppts.push(new ServiceAppointmentList(self.services.list[i]));
+                }
+            }
+        });
+        $rootScope.$watchCollection('_modelObs.services', function(newVal, oldVal){
+            /* Handle the addition of new services */
+            if(newVal.length > oldVal.length){
+                var elem = getElemAdded(newVal, oldVal);
+                for(var i=0; i<self.students.list.length; i++){
+                    self.students.list[i].serviceReqs.push(new ServiceReq(elem));
+                    self.students.list[i].serviceAppts.push(new ServiceAppointmentList(elem));
+                }
+            }
+            /* Handle the deletion of services */
+            else if (newVal.length < oldVal.length){
+                var elem = getElemRemoved(newVal, oldVal);
+                for(var i=0; i<self.students.list.length; i++){
+                    for(var j=0; j<self.students.list[i].serviceReqs.length; j++){
+                        var servReq = self.students.list[i].serviceReqs[j];
+                        if(servReq.service === elem){
+                            self.students.list[i].serviceReqs.splice(j, 1);
+                            break;
+                        }
+                    }
+                    var servAppts = [];
+                    for(var j=0; j<self.students.list[i].serviceAppts.length; j++){
+                        var servAppt = self.students.list[i].serviceAppts[j];
+                        if(servAppt.service !== elem){
+                            servAppts.push(servAppt);
+                        }
+                    }
+                    self.students.list[i].serviceAppts = servAppts;
+                }
+                var appointments = [];
+                for(var i=0; i<self.appointments.length; i++){
+                    if(self.appointments[i].service !== elem){
+                        appointments.push(elem);
+                    }
+                }
+                self.appointments = appointments;
+            }
+        });
+        $rootScope.$watchCollection('_modelObs.classes', function(newVal, oldVal){
+            /* Sit on your butt */
+        });
+
+        function getElemRemoved(newArr, prevArr){
+            return $(prevArr).not(newArr).get()[0];
+        }
+        function getElemAdded(newArr, prevArr){
+            return $(newArr).not(prevArr).get()[0];
+        }
 
         self.save = function(){
             var json = {
@@ -70,58 +120,10 @@ angular.module('easy-slp-scheduler')
             input.click();
         };
 
+
         /*
-         *  Wiring up observers to handle changes in collections
+         * CONSTRUCTORS
          */
-
-        // Handle the addition of new services
-        self.services.list.subscribeToAdd(function(elem, arr){
-            for(var i=0; i<self.students.list.length; i++){
-                self.students.list[i].serviceReqs.push(new ServiceReq(elem));
-                self.students.list[i].serviceAppts.push(new ServiceAppointmentList(elem));
-            }
-        });
-
-        // Handle the addition of new students
-        self.students.list.subscribeToAdd(function(elem, arr){
-            for(var i=0; i<self.services.list.length; i++){
-                elem.serviceReqs.push(new ServiceReq(self.services.list[i]));
-                elem.serviceAppts.push(new ServiceAppointmentList(self.services.list[i]));
-            }
-        });
-
-        // Handle the deletion of services
-        self.services.list.subscribeToRemove(function(elem, arr){
-            for(var i=0; i<self.students.list.length; i++){
-                for(var j=0; j<self.students.list[i].serviceReqs.length; j++){
-                    var servReq = self.students.list[i].serviceReqs[j];
-                    if(servReq.service === elem[0]){
-                        self.students.list[i].serviceReqs.splice(j, 1);
-                        break;
-                    }
-                }
-                var servAppts = [];
-                for(var j=0; j<self.students.list[i].serviceAppts.length; j++){
-                    var servAppt = self.students.list[i].serviceAppts[j];
-                    if(servAppt.service !== elem[0]){
-                        servAppts.push(servAppt);
-                    }
-                }
-                self.students.list[i].serviceAppts = servAppts;
-            }
-            var appointments = [];
-            for(var i=0; i<self.appointments.length; i++){
-                if(self.appointments[i].service !== elem[0]){
-                    appointments.push(elem[0]);
-                }
-            }
-            self.appointments = appointments;
-        });
-
-        // Handle the deletion of students
-        self.students.list.subscribeToRemove(function(elem, arr){
-
-        });
 
         function Student(firstName, lastName, group){
             this.firstName = firstName;
@@ -190,32 +192,5 @@ angular.module('easy-slp-scheduler')
         }
         ServiceAppointmentList.prototype = Object.create(Array.prototype);
         ServiceAppointmentList.prototype.constructor = Array;
-
-        function ObservableArray(){
-            var arr = [];
-            var _addSubscribers = [];
-            var _removeSubscribers = [];
-            arr.push = function(elem){
-                var ret = Array.prototype.push.call(arr, elem);
-                for(var i=0; i<_addSubscribers.length; i++){
-                    _addSubscribers[i](elem, arr);
-                }
-                return ret;
-            };
-            arr.splice = function(index, howMany){
-                var ret = Array.prototype.splice.call(arr, index, howMany);
-                for(var i=0; i<_removeSubscribers.length; i++){
-                    _removeSubscribers[i](ret, arr);
-                }
-                return ret;
-            };
-            arr.subscribeToAdd = function(fn){
-                _addSubscribers.push(fn);
-            };
-            arr.subscribeToRemove = function(fn){
-                _removeSubscribers.push(fn);
-            };
-            return arr;
-        }
 
     });
