@@ -85,7 +85,7 @@ angular.module('easy-slp-scheduler')
                 services: self.services.list,
                 students: self.students.list,
                 classes: self.classes.list,
-                appointments: self.appointments.list
+                appointments: self.appointments
             };
             var s = Cryo.stringify(json);
             var o = Cryo.parse(s);
@@ -108,13 +108,12 @@ angular.module('easy-slp-scheduler')
                 function fileHandler(e){
                     var result = e.target.result;
                     var obj = Cryo.parse(result);
-
-                    /*self.services.list = obj.services;
-                    self.students.list = obj.students;
-                    self.classes.list = obj.classes;
-                    self.appointments = obj.appointments;
-                    $rootScope.$apply();*/
-                    console.info(obj);
+                    $rootScope.$apply(function(){
+                        self.services.list = obj.services;
+                        self.students.list = obj.students;
+                        self.classes.list = obj.classes;
+                        self.appointments = obj.appointments;
+                    });
                 }
             };
             input.click();
@@ -143,10 +142,11 @@ angular.module('easy-slp-scheduler')
         }
         this.Class = Class;
 
-        this.ServiceSchedule = function ServiceSchedule(){
+        function ServiceSchedule(){
             this.events = [];
             this.color = 'blue';
-        };
+        }
+        this.ServiceSchedule = ServiceSchedule;
 
         function Service(name){
             this.name = name;
@@ -158,6 +158,7 @@ angular.module('easy-slp-scheduler')
             this.service = service;
             this.number = 0;
         }
+        this.ServiceReq = ServiceReq;
 
         function ServiceAppointment(service, start, end){
             this.title = service.name;
@@ -166,6 +167,7 @@ angular.module('easy-slp-scheduler')
             this.service = service;
             this.students = [];
         }
+        this.ServiceAppointment = ServiceAppointment;
 
         function ServiceAppointmentList(service){
             Array.call(this);
