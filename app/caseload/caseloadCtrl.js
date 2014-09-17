@@ -58,8 +58,9 @@ angular.module('easy-slp-scheduler')
                 }
             });
             modalInstance.result.then(function(event){
+                $scope.studentEvents.events.push(angular.copy(event));
+                delete event.self;
                 $scope.students.selected.constraints.push(event);
-                $scope.studentEvents.events = $scope.students.selected.constraints;
             });
         };
 
@@ -88,8 +89,20 @@ angular.module('easy-slp-scheduler')
 
         function calendarOnClick(event, allDay, jsEvent, view){
             if($scope.students.selected){
-                $scope.openNewConstraintModal({start:event, end: allDay?undefined:new Date(event.getTime() + 1800000), allDay: allDay});
+                $scope.openNewConstraintModal(new BlankEvent(event, allDay));
             }
+        }
+
+        function BlankEvent(event, allDay){
+            this.start = event;
+            this.end = allDay?undefined:new Date(event.getTime() + 1800000);
+            this.allDay = allDay;
+            this.self = this;
+        }
+
+        function updateEvent(event, dayDelta, minuteDelta){
+            event.self.start = event.start;
+            event.self.end = event.end;
         }
 
         $scope.studentEvents = {

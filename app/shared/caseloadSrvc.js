@@ -108,12 +108,17 @@ angular.module('easy-slp-scheduler')
                 function fileHandler(e){
                     var result = e.target.result;
                     var obj = Cryo.parse(result);
-                    $rootScope.$apply(function(){
-                        self.services.list = obj.services;
-                        self.students.list = obj.students;
-                        self.classes.list = obj.classes;
-                        self.appointments = obj.appointments;
-                    });
+                    clearAndCopy(obj.services, self.services.list);
+                    clearAndCopy(obj.students, self.students.list);
+                    clearAndCopy(obj.classes, self.classes.list);
+                    clearAndCopy(obj.appointments, self.appointments);
+                    $rootScope.$apply();
+                }
+
+                function clearAndCopy(srcArr, tgtArr){
+                    tgtArr.length = 0;
+                    angular.copy(srcArr, tgtArr);
+                    //angular.forEach(srcArr, function(val){ tgtArr.push(val); });
                 }
             };
             input.click();
