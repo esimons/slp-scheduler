@@ -14,8 +14,8 @@ angular.module('easy-slp-scheduler')
             selected: null,
             select: function(student){
                 this.selected = student;
-                $scope.studentEvents.events = student.constraints;
-                $scope.classEvents.events = student.class ? angular.copy(student.class.constraints) : [];
+                $scope.eventSources[0] = new StudentEvents(student.constraints);
+                $scope.eventSources[1] = student.class ? new ClassEvents(student.class.constraints) : new ClassEvents();
             },
             isSelected: function(student){
                 return this.selected === student;
@@ -58,9 +58,8 @@ angular.module('easy-slp-scheduler')
                 }
             });
             modalInstance.result.then(function(event){
-                $scope.studentEvents.events.push(angular.copy(event));
-                delete event.self;
                 $scope.students.selected.constraints.push(event);
+                $scope.eventSources[0] = new StudentEvents($scope.students.selected.constraints);
             });
         };
 
@@ -101,18 +100,28 @@ angular.module('easy-slp-scheduler')
         }
 
         function updateEvent(event, dayDelta, minuteDelta){
-            event.self.start = event.start;
-            event.self.end = event.end;
+            event.orig.start = event.start;
+            event.orig.end = event.end;
         }
 
-        $scope.studentEvents = {
-            events: []
-        };
-        $scope.classEvents = {
-            events: [],
-            editable: false,
-            color: 'gray'
-        };
-        $scope.eventSources = [$scope.studentEvents, $scope.classEvents];
+        function StudentEvents(eventsArr) {
+            this.events = eventsArr ? angular.copy(eventsArr) : [];
+            for(var i=0; i<eventsArr.length; i++){
+                this.events[i].orig = eventsArr[i];
+            }
+        }
+
+        function ClassEvents(eventsArr) {
+            var events = this.events = [];
+            angular.forEach(eventsArr, function(event){
+                delete event.__uiCalId;
+                delete event.className;
+                events.push(event);
+            });
+            this.editable = false;
+            this.color = 'gray';
+        }
+
+        $scope.eventSources = [];
 
     });

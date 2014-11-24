@@ -108,17 +108,50 @@ angular.module('easy-slp-scheduler')
                 function fileHandler(e){
                     var result = e.target.result;
                     var obj = Cryo.parse(result);
-                    clearAndCopy(obj.services, self.services.list);
-                    clearAndCopy(obj.students, self.students.list);
-                    clearAndCopy(obj.classes, self.classes.list);
-                    clearAndCopy(obj.appointments, self.appointments);
-                    $rootScope.$apply();
-                }
 
-                function clearAndCopy(srcArr, tgtArr){
-                    tgtArr.length = 0;
-                    angular.copy(srcArr, tgtArr);
-                    //angular.forEach(srcArr, function(val){ tgtArr.push(val); });
+                    self.classes.list.length = 0;
+                    self.services.list.length = 0;
+                    self.students.list.length = 0;
+
+                    $rootScope.$apply();
+
+                    var map = {
+                        classes: [],
+                        services: [],
+                        students: []
+                    };
+
+                    angular.forEach(obj.classes, function(c){
+                        var newC = new Class(c.name, c.teacher);
+                        newC.constraints = c.constraints;
+                        self.classes.list.push(newC);
+                        var id = map.classes.push(newC)-1;
+                        c.__$id = id;
+                        $rootScope.$apply();
+                    });
+                    angular.forEach(obj.services, function(s){
+                        var newS = new Service(s.name);
+                        newS.defaultDuration = s.defaultDuration;
+                        self.services.list.push(newS);
+                        var id = map.services.push(newS)-1;
+                        s.__$id = id;
+                        $rootScope.$apply();
+                    });
+                    angular.forEach(obj.students, function(s){
+                        var newS = new Student(s.firstName, s.lastName, map.classes[s.class.__$id]);
+                        self.students.list.push(newS);
+                        var id = map.students.push(newS)-1;
+                        s.__$id = id;
+                        $rootScope.$apply();
+                    });
+
+                    angular.forEach(obj.students, function(s){
+                        var newS = map.students[s.__$id];
+                        for(var i=0; i < s.serviceReqs.length; i++){
+                            newS.serviceReqs[i].number = s.serviceReqs[i].number;
+                        }
+                        $rootScope.$apply();
+                    });
                 }
             };
             input.click();
