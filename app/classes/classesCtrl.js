@@ -2,7 +2,7 @@
  * Created by Evan on 7/24/2014.
  */
 angular.module('easy-slp-scheduler')
-    .controller('classesCtrl', function($scope, $modal, caseloadService){
+    .controller('classesCtrl', function($scope, $modal, caseloadService, uiCalendarConfig) {
 
         var defaultConstraintTypes = [
             'lunch',
@@ -12,43 +12,55 @@ angular.module('easy-slp-scheduler')
         $scope.classes = {
             list: caseloadService.classes.list,
             selected: null,
-            select: function(classy){
+            select: function(classy) {
+                var events = $scope.classEvents.events;
+                events.splice(0, events.length);
+                if (classy) {
+                    _.each(classy.constraints, function(constraint){
+                        events.push(_.clone(constraint));
+                    });
+                }
                 this.selected = classy;
-                $scope.classEvents.events = classy.constraints;
             },
-            isSelected: function(classy){
+            isSelected: function(classy) {
                 return this.selected === classy;
             },
-            delete: function(index){
+            delete: function(index) {
                 var arr = $scope.classes.list.splice(index, 1);
-                if(this.selected == arr[0]){ this.selected = null; }
+                if (this.selected == arr[0]) {
+                    this.select(null);
+                }
             }
         };
 
-        $scope.openNewClassModal = function(){
+        $scope.openNewClassModal = function() {
             var modalInstance = $modal.open({
                 templateUrl: 'app/classes/classesModal/newClassModal.html',
                 controller: 'newClassModal'
             });
 
-            modalInstance.result.then(function(classy){
+            modalInstance.result.then(function(classy) {
                 $scope.classes.list.push(classy);
                 $scope.classes.select(classy);
             })
         };
 
-        $scope.openNewConstraintModal = function(initEvent){
+        $scope.openNewConstraintModal = function(date) {
             var modalInstance = $modal.open({
                 templateUrl: 'app/shared/addConstraintModal/addConstraintModal.html',
                 controller: 'addConstraintModalCtrl',
                 resolve: {
-                    constraintTypes: function(){ return defaultConstraintTypes; },
-                    initEvent: function(){ return initEvent; }
+                    constraintTypes: function() {
+                        return defaultConstraintTypes;
+                    },
+                    date: function() {
+                        return date;
+                    }
                 }
             });
-            modalInstance.result.then(function(event){
+            modalInstance.result.then(function(event) {
                 $scope.classes.selected.constraints.push(event);
-                $scope.classEvents.events = $scope.classes.selected.constraints;
+                $scope.classEvents.events.push(_.clone(event));
             });
         };
 
@@ -62,27 +74,35 @@ angular.module('easy-slp-scheduler')
             },
             defaultView: 'agendaWeek',
             weekends: false,
-            year: 1990,
-            month: 0,
-            date: 1,
+            defaultDate: moment(new Date(0,0,1)),
             columnFormat: {
-                month: 'ddd',    // Mon
+                month: 'ddd', // Mon
                 week: 'ddd', // Mon
-                day: 'dddd'  // Monday
+                day: 'dddd' // Monday
             },
             dayClick: calendarOnClick,
-            eventDrop: angular.noop,
-            eventResize: angular.noop
+            eventDrop: eventUpdate,
+            eventResize: eventUpdate,
+            timezone: 'local'
         };
 
-        function calendarOnClick(event, allDay, jsEvent, view){
-            if($scope.classes.selected){
-                $scope.openNewConstraintModal({start:event, end: allDay?undefined:new Date(event.getTime() + 1800000), allDay: allDay});
+        function calendarOnClick(date, jsEvent, view) {
+            if ($scope.classes.selected) {
+                $scope.openNewConstraintModal(date);
             }
         }
 
+        function eventUpdate(event, delta, revertFunc, jsEvent, ui, view) {
+            var index = _.findIndex($scope.classEvents.events, { _id: event._id }),
+                constraint = $scope.classes.selected.constraints[index];
+            constraint.start = event.start;
+            constraint.end = event.end;
+        }
+
         $scope.classEvents = {
-            events: []
+            events: [],
+            editable: true,
+            color: '#3A87AD'
         };
         $scope.eventSources = [$scope.classEvents];
 

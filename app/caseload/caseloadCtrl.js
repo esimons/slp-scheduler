@@ -114,7 +114,7 @@ angular.module('easy-slp-scheduler')
         function ClassEvents(eventsArr) {
             var events = this.events = [];
             angular.forEach(eventsArr, function(event){
-                delete event.__uiCalId;
+                delete event.__id;
                 delete event.className;
                 events.push(event);
             });

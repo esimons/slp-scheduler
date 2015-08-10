@@ -21,63 +21,57 @@ angular.module('easy-slp-scheduler')
             students: self.students.list,
             classes: self.classes.list
         };
+
         $rootScope.$watchCollection('_modelObs.students', function(newVal, oldVal){
             /* Handle the addition of new students */
             if(newVal.length > oldVal.length){
-                var elem = getElemAdded(newVal, oldVal);
-                for(var i=0; i<self.services.list.length; i++){
-                    elem.serviceReqs.push(new ServiceReq(self.services.list[i]));
-                    elem.serviceAppts.push(new ServiceAppointmentList(self.services.list[i]));
-                }
+                var addedStudent = getElemAdded(newVal, oldVal);
+
+                // Add zeroed-out requirements for all service types to the new student
+                _.each(self.services.list, function(service){
+                    addedStudent.serviceReqs.push(new ServiceReq(service));
+                });
             }
         });
+
         $rootScope.$watchCollection('_modelObs.services', function(newVal, oldVal){
             /* Handle the addition of new services */
-            if(newVal.length > oldVal.length){
-                var elem = getElemAdded(newVal, oldVal);
-                for(var i=0; i<self.students.list.length; i++){
-                    self.students.list[i].serviceReqs.push(new ServiceReq(elem));
-                    self.students.list[i].serviceAppts.push(new ServiceAppointmentList(elem));
-                }
+            if (newVal.length > oldVal.length){
+                var addedService = getElemAdded(newVal, oldVal);
+
+                // Add a zeroed-out service requirement of the new type to all students 
+                _.each(self.students.list, function(student){
+                    student.serviceReqs.push(new ServiceReq(addedService));
+                });
             }
             /* Handle the deletion of services */
             else if (newVal.length < oldVal.length){
-                var elem = getElemRemoved(newVal, oldVal);
-                for(var i=0; i<self.students.list.length; i++){
-                    for(var j=0; j<self.students.list[i].serviceReqs.length; j++){
-                        var servReq = self.students.list[i].serviceReqs[j];
-                        if(servReq.service === elem){
-                            self.students.list[i].serviceReqs.splice(j, 1);
-                            break;
-                        }
-                    }
-                    var servAppts = [];
-                    for(var j=0; j<self.students.list[i].serviceAppts.length; j++){
-                        var servAppt = self.students.list[i].serviceAppts[j];
-                        if(servAppt.service !== elem){
-                            servAppts.push(servAppt);
-                        }
-                    }
-                    self.students.list[i].serviceAppts = servAppts;
-                }
-                var appointments = [];
-                for(var i=0; i<self.appointments.length; i++){
-                    if(self.appointments[i].service !== elem){
-                        appointments.push(elem);
-                    }
-                }
-                self.appointments = appointments;
+                var removedService = getElemRemoved(newVal, oldVal);
+
+                // Remove any appoints or service requirements of the removed service type
+                _.each(self.students.list, function(student){
+                    student.serviceReqs = _.reject(student.serviceReqs, function(req){
+                        return req.service === removedService;
+                    });
+                    student.serviceAppts = _.reject(student.serviceAppts, function(appt){
+                        return appt.service === removedService;
+                    });
+                });
+                self.appointments = _.reject(self.appointments, function(appt){
+                    return appt.service === removedService;
+                });
             }
         });
+
         $rootScope.$watchCollection('_modelObs.classes', function(newVal, oldVal){
             /* Sit on your butt */
         });
 
         function getElemRemoved(newArr, prevArr){
-            return $(prevArr).not(newArr).get()[0];
+            return _.first(_.difference(prevArr, newArr));
         }
         function getElemAdded(newArr, prevArr){
-            return $(newArr).not(prevArr).get()[0];
+            return _.first(_.difference(newArr, prevArr));
         }
 
         self.save = function(){
@@ -125,33 +119,33 @@ angular.module('easy-slp-scheduler')
                         var newC = new Class(c.name, c.teacher);
                         newC.constraints = c.constraints;
                         self.classes.list.push(newC);
-                        var id = map.classes.push(newC)-1;
-                        c.__$id = id;
+                        /*var id = map.classes.push(newC)-1;
+                        c.__$id = id;*/
                         $rootScope.$apply();
                     });
                     angular.forEach(obj.services, function(s){
                         var newS = new Service(s.name);
                         newS.defaultDuration = s.defaultDuration;
                         self.services.list.push(newS);
-                        var id = map.services.push(newS)-1;
-                        s.__$id = id;
+                        /*var id = map.services.push(newS)-1;
+                        s.__$id = id;*/
                         $rootScope.$apply();
                     });
                     angular.forEach(obj.students, function(s){
                         var newS = new Student(s.firstName, s.lastName, map.classes[s.class.__$id]);
                         self.students.list.push(newS);
-                        var id = map.students.push(newS)-1;
-                        s.__$id = id;
+                        /*var id = map.students.push(newS)-1;
+                        s.__$id = id;*/
                         $rootScope.$apply();
                     });
 
-                    angular.forEach(obj.students, function(s){
+                    /*angular.forEach(obj.students, function(s){
                         var newS = map.students[s.__$id];
                         for(var i=0; i < s.serviceReqs.length; i++){
                             newS.serviceReqs[i].number = s.serviceReqs[i].number;
                         }
                         $rootScope.$apply();
-                    });
+                    });*/
                 }
             };
             input.click();
@@ -165,7 +159,6 @@ angular.module('easy-slp-scheduler')
         function Student(firstName, lastName, group){
             this.firstName = firstName;
             this.lastName = lastName;
-            this.class = group || null;
             this.serviceReqs = [];
             this.serviceAppts = [];
             this.constraints = [];
@@ -180,12 +173,6 @@ angular.module('easy-slp-scheduler')
         }
         this.Class = Class;
 
-        function ServiceSchedule(){
-            this.events = [];
-            this.color = 'blue';
-        }
-        this.ServiceSchedule = ServiceSchedule;
-
         function Service(name){
             this.name = name;
             this.defaultDuration = 30;
@@ -198,39 +185,13 @@ angular.module('easy-slp-scheduler')
         }
         this.ServiceReq = ServiceReq;
 
-        function ServiceAppointment(service, start, end){
+        function Appointment(service, start, end){
             this.title = service.name;
             this.start = null;
             this.end = null;
             this.service = service;
             this.students = [];
         }
-        this.ServiceAppointment = ServiceAppointment;
-
-        function ServiceAppointmentList(service){
-            Array.call(this);
-            this.service = service;
-            this.getUnscheduled = function(){
-                var arr = [];
-                for(var i=0; i<this.length; i++){
-                    if(!this[i].start){ arr.push(this[i]); }
-                }
-                return arr;
-            };
-            this.addNew = function(){
-                Array.prototype.push.call(this, new ServiceAppointment(this.service));
-            };
-            this.remove = function(){
-                var unscheduled = this.getUnscheduled();
-                if(unscheduled.length > 0){
-                    var index = this.indexOf(unscheduled[0]);
-                    this.splice(index, 1);
-                } else {
-                    window.alert("GAH I DON'T KNOW WHAT TO DO! YOU REDUCED A SERVICE REQUIREMENT BELOW THE NUMBER OF SERVICE APPOINTMENTS YOU'VE SCHEDULED!");
-                }
-            }
-        }
-        ServiceAppointmentList.prototype = Object.create(Array.prototype);
-        ServiceAppointmentList.prototype.constructor = Array;
+        this.Appointment = Appointment;
 
     });

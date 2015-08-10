@@ -3,15 +3,20 @@
   "description": "Front-end software for school-based SLPs to schedule their work week",
   "version": "0.0.1",
   "dependencies": {
-      "angular-bootstrap": "latest",
-      "angular-ui-router": "latest",
-      "angular": "~1.3",
-      "bootstrap": "latest",
-      "bootswatch": "latest",
-      "angular-ui-calendar": "latest",
-      "fontawesome": "latest",
-      "ngtoast": "latest",
-      "cryo": "latest"
+    "angular-bootstrap": "latest",
+    "angular-ui-router": "latest",
+    "angular": "~1.4.1",
+    "bootstrap": "latest",
+    "bootswatch": "latest",
+    "angular-ui-calendar": "~1.0.1",
+    "fontawesome": "latest",
+    "ngtoast": "latest",
+    "cryo": "latest",
+    "underscore": "latest"
   },
-  "private": true
+  "private": true,
+  "resolutions": {
+    "fullcalendar": "~2.3.2",
+    "jquery": "2.x"
+  }
 }
