@@ -13,24 +13,54 @@ angular.module('easy-slp-scheduler')
             list: caseloadService.students.list,
             selected: null,
             select: function(student){
+                var studentEvents = $scope.studentConstraints.events,
+                    classEvents = $scope.classConstraints.events;
+                studentEvents.splice(0, studentEvents.length);
+                classEvents.splice(0, classEvents.length);
+                if (student) {
+                    _.each(student.constraints, function(constraint){
+                        studentEvents.push(_.clone(constraint));
+                    });
+                    // Need to do a full search to figure out what class a student belongs to?
+                    // Should fix this. Don't really care if it causes cycles.
+                    var classy = _.find(caseloadService.classes.list, function(classy) {
+                        return _.contains(classy.students, student);
+                    });
+                    if (classy) {
+                        _.each(student.constraints, function(constraint){
+                            classEvents.push(_.clone(constraint));
+                        });                        
+                    }
+                }
                 this.selected = student;
-                $scope.eventSources[0] = new StudentEvents(student.constraints);
-                $scope.eventSources[1] = student.class ? new ClassEvents(student.class.constraints) : new ClassEvents();
             },
             isSelected: function(student){
                 return this.selected === student;
             },
             delete: function(index){
                 var arr = $scope.students.list.splice(index, 1);
-                if(this.selected == arr[0]){ this.selected = null; }
+                if (this.selected == arr[0]){
+                    this.selected = null;
+                }
             }
         };
 
-        $scope.updateApptCount = function(number, index){
-            var student = $scope.students.selected;
-            var appts = student.serviceAppts[index];
-            if(appts.length < number){ appts.addNew(); }
-            else if(appts.length > number) { appts.remove(); }
+        $scope.updateApptCount = function(serviceReq){
+            var student = $scope.students.selected,
+                number = serviceReq.number,
+                service = serviceReq.service,
+                appts = _.where(student.serviceAppts, { service: service });
+            if (appts.length > number) {
+                if (window.confirm(
+                'You have reduced a service requirement below the number of ' +
+                'services already scheduled. Okay if we remove one of those service ' +
+                'appointments for you? Or click cancel, and you can remove an appointment ' +
+                'manually and then re-try the service req adjustment.')) {
+                    appts[0].removeStudent(student);                
+                } else {
+                    serviceReq.number++;
+                }
+            }
         };
 
         $scope.openNewStudentModal = function(){
@@ -44,22 +74,29 @@ angular.module('easy-slp-scheduler')
 
             modalInstance.result.then(function(student){
                 $scope.students.list.push(student);
+                if (student.class) {
+                    student.class.students.push(student);
+                }
                 $scope.students.select(student);
             })
         };
 
-        $scope.openNewConstraintModal = function(initEvent){
+        $scope.openNewConstraintModal = function(date) {
             var modalInstance = $modal.open({
                 templateUrl: 'app/shared/addConstraintModal/addConstraintModal.html',
                 controller: 'addConstraintModalCtrl',
                 resolve: {
-                    constraintTypes: function(){ return defaultConstraintTypes; },
-                    initEvent: function(){ return initEvent; }
+                    constraintTypes: function() {
+                        return defaultConstraintTypes;
+                    },
+                    date: function() {
+                        return date;
+                    }
                 }
             });
             modalInstance.result.then(function(event){
                 $scope.students.selected.constraints.push(event);
-                $scope.eventSources[0] = new StudentEvents($scope.students.selected.constraints);
+                $scope.studentConstraints.events.push(_.clone(event));
             });
         };
 
@@ -73,55 +110,41 @@ angular.module('easy-slp-scheduler')
             },
             defaultView: 'agendaWeek',
             weekends: false,
-            year: 1990,
-            month: 0,
-            date: 1,
+            defaultDate: moment(new Date(0,0,1)),
             columnFormat: {
                 month: 'ddd',    // Mon
                 week: 'ddd', // Mon
                 day: 'dddd'  // Monday
             },
             dayClick: calendarOnClick,
-            eventDrop: angular.noop,
-            eventResize: angular.noop
+            eventDrop: eventUpdate,
+            eventResize: eventUpdate,
+            timezone: 'local'
         };
 
-        function calendarOnClick(event, allDay, jsEvent, view){
-            if($scope.students.selected){
-                $scope.openNewConstraintModal(new BlankEvent(event, allDay));
+        function calendarOnClick(date, jsEvent, view) {
+            if ($scope.students.selected) {
+                $scope.openNewConstraintModal(date);
             }
         }
 
-        function BlankEvent(event, allDay){
-            this.start = event;
-            this.end = allDay?undefined:new Date(event.getTime() + 1800000);
-            this.allDay = allDay;
-            this.self = this;
+        function eventUpdate(event, delta, revertFunc, jsEvent, ui, view) {
+            var index = _.findIndex($scope.studentConstraints.events, { _id: event._id }),
+                constraint = $scope.students.selected.constraints[index];
+            constraint.start = event.start;
+            constraint.end = event.end;
         }
 
-        function updateEvent(event, dayDelta, minuteDelta){
-            event.orig.start = event.start;
-            event.orig.end = event.end;
-        }
-
-        function StudentEvents(eventsArr) {
-            this.events = eventsArr ? angular.copy(eventsArr) : [];
-            for(var i=0; i<eventsArr.length; i++){
-                this.events[i].orig = eventsArr[i];
-            }
-        }
-
-        function ClassEvents(eventsArr) {
-            var events = this.events = [];
-            angular.forEach(eventsArr, function(event){
-                delete event.__id;
-                delete event.className;
-                events.push(event);
-            });
-            this.editable = false;
-            this.color = 'gray';
-        }
-
-        $scope.eventSources = [];
+        $scope.studentConstraints = {
+            events: [],
+            editable: true,
+            color: '#3A87AD'            
+        };
+        $scope.classConstraints = {
+            events: [],
+            editable: false,
+            color: '#BEBEBE'            
+        };
+        $scope.eventSources = [$scope.studentConstraints, $scope.classConstraints];
 
     });

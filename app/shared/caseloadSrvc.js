@@ -81,6 +81,9 @@ angular.module('easy-slp-scheduler')
                 classes: self.classes.list,
                 appointments: self.appointments
             };
+            // TODO: Remove Cryo. It's not doing anything for you.
+            // Instead, just serialize objects into json. Avoid cycles
+            // by killing each class's students array.
             var s = Cryo.stringify(json);
             var o = Cryo.parse(s);
 
@@ -119,6 +122,7 @@ angular.module('easy-slp-scheduler')
                         var newC = new Class(c.name, c.teacher);
                         newC.constraints = c.constraints;
                         self.classes.list.push(newC);
+                        c.___hydrated = newC;
                         /*var id = map.classes.push(newC)-1;
                         c.__$id = id;*/
                         $rootScope.$apply();
@@ -127,13 +131,17 @@ angular.module('easy-slp-scheduler')
                         var newS = new Service(s.name);
                         newS.defaultDuration = s.defaultDuration;
                         self.services.list.push(newS);
+                        s.___hydrated = newS;
                         /*var id = map.services.push(newS)-1;
                         s.__$id = id;*/
                         $rootScope.$apply();
                     });
                     angular.forEach(obj.students, function(s){
-                        var newS = new Student(s.firstName, s.lastName, map.classes[s.class.__$id]);
+                        var classy = s.class.___hydrated,
+                            newS = new Student(s.firstName, s.lastName, classy);
                         self.students.list.push(newS);
+                        classy.students.push(newS);
+                        s.___hydrated = newS;
                         /*var id = map.students.push(newS)-1;
                         s.__$id = id;*/
                         $rootScope.$apply();
@@ -162,6 +170,7 @@ angular.module('easy-slp-scheduler')
             this.serviceReqs = [];
             this.serviceAppts = [];
             this.constraints = [];
+            this.class = group;
         }
         this.Student = Student;
 
@@ -191,6 +200,16 @@ angular.module('easy-slp-scheduler')
             this.end = null;
             this.service = service;
             this.students = [];
+            this.removeStudent = function(student){
+                var index = this.students.indexOf(student);
+                this.students.splice(index, 1);
+                index = student.serviceAppts.indexOf(this);
+                student.serviceAppts.splice(index, 1);
+                if (this.students.length < 1) {
+                    index = self.appointments.list.indexOf(this);
+                    self.appointments.list.splice(index, 1);
+                }
+            }
         }
         this.Appointment = Appointment;
 

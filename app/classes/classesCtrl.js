@@ -13,7 +13,7 @@ angular.module('easy-slp-scheduler')
             list: caseloadService.classes.list,
             selected: null,
             select: function(classy) {
-                var events = $scope.classEvents.events;
+                var events = $scope.classConstraints.events;
                 events.splice(0, events.length);
                 if (classy) {
                     _.each(classy.constraints, function(constraint){
@@ -60,7 +60,7 @@ angular.module('easy-slp-scheduler')
             });
             modalInstance.result.then(function(event) {
                 $scope.classes.selected.constraints.push(event);
-                $scope.classEvents.events.push(_.clone(event));
+                $scope.classConstraints.events.push(_.clone(event));
             });
         };
 
@@ -93,17 +93,17 @@ angular.module('easy-slp-scheduler')
         }
 
         function eventUpdate(event, delta, revertFunc, jsEvent, ui, view) {
-            var index = _.findIndex($scope.classEvents.events, { _id: event._id }),
+            var index = _.findIndex($scope.classConstraints.events, { _id: event._id }),
                 constraint = $scope.classes.selected.constraints[index];
             constraint.start = event.start;
             constraint.end = event.end;
         }
 
-        $scope.classEvents = {
+        $scope.classConstraints = {
             events: [],
             editable: true,
             color: '#3A87AD'
         };
-        $scope.eventSources = [$scope.classEvents];
+        $scope.eventSources = [$scope.classConstraints];
 
     });
