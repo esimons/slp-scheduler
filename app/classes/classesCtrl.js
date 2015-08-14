@@ -74,6 +74,7 @@ angular.module('easy-slp-scheduler')
             },
             defaultView: 'agendaWeek',
             weekends: false,
+            allDaySlot: false,
             defaultDate: moment(new Date(0,0,1)),
             columnFormat: {
                 month: 'ddd', // Mon

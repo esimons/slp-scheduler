@@ -82,14 +82,10 @@ angular.module('easy-slp-scheduler')
                 center: '',
                 right: ''
             },
-            allDaySlot: false,
             defaultView: 'agendaWeek',
             weekends: false,
-            minTime: '5:00am',
-            maxTime: '6:00pm',
-            year: 1990,
-            month: 0,
-            date: 1,
+            allDaySlot: false,
+            defaultDate: moment(new Date(0,0,1)),
             columnFormat: {
                 month: 'ddd',    // Mon
                 week: 'ddd', // Mon

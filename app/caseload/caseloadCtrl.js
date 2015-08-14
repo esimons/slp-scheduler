@@ -27,7 +27,7 @@ angular.module('easy-slp-scheduler')
                         return _.contains(classy.students, student);
                     });
                     if (classy) {
-                        _.each(student.constraints, function(constraint){
+                        _.each(classy.constraints, function(constraint){
                             classEvents.push(_.clone(constraint));
                         });                        
                     }
@@ -110,6 +110,7 @@ angular.module('easy-slp-scheduler')
             },
             defaultView: 'agendaWeek',
             weekends: false,
+            allDaySlot: false,
             defaultDate: moment(new Date(0,0,1)),
             columnFormat: {
                 month: 'ddd',    // Mon

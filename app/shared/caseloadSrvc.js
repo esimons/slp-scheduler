@@ -75,22 +75,50 @@ angular.module('easy-slp-scheduler')
         }
 
         self.save = function(){
-            var json = {
-                services: self.services.list,
-                students: self.students.list,
-                classes: self.classes.list,
-                appointments: self.appointments
-            };
-            // TODO: Remove Cryo. It's not doing anything for you.
-            // Instead, just serialize objects into json. Avoid cycles
-            // by killing each class's students array.
-            var s = Cryo.stringify(json);
-            var o = Cryo.parse(s);
+            var json = self.jsonify(
+                self.services.list,
+                self.students.list,
+                self.classes.list,
+                self.appointments
+            );
 
             var a = document.createElement('a');
             a.download = "Save.slp";
-            a.href = "data:text/json;base64," + btoa(s);
+            a.href = "data:text/json;base64," + btoa(json);
             a.click();
+        };
+
+        self.jsonify = function(services, students, classes, appointments){
+            // TODO: Need to look at how I can decycle data w/out screwing up object refs
+            // Should probably just modify objects in-place instead of using underscore,
+            // then serialize, then undo the modifications afterwards
+            var map = {
+                classStudents: []
+            };
+
+            // Let's decycle our data!
+            _.each(classes, function(classy){
+                map.classStudents.push({
+                    classy: classy,
+                    students: classy.students
+                });
+                classy.students = [];
+            });
+
+            // TODO: Remove Cryo. I don't think it's doing anything for us, really.
+            var json = Cryo.stringify({
+                services: services,
+                students: students,
+                classes: classes,
+                appointments: appointments
+            });
+
+            // Let's RE-cycle our data!
+            _.each(map.classStudents, function(obj){
+                obj.classy.students = obj.students;
+            });
+
+            return json;
         };
 
         self.load = function(file){
@@ -103,8 +131,9 @@ angular.module('easy-slp-scheduler')
                 reader.readAsText(file);
 
                 function fileHandler(e){
-                    var result = e.target.result;
-                    var obj = Cryo.parse(result);
+                    var result = e.target.result,
+                        obj = Cryo.parse(result),
+                        cryoMap = {};
 
                     self.classes.list.length = 0;
                     self.services.list.length = 0;
@@ -112,48 +141,28 @@ angular.module('easy-slp-scheduler')
 
                     $rootScope.$apply();
 
-                    var map = {
-                        classes: [],
-                        services: [],
-                        students: []
-                    };
-
                     angular.forEach(obj.classes, function(c){
                         var newC = new Class(c.name, c.teacher);
                         newC.constraints = c.constraints;
                         self.classes.list.push(newC);
-                        c.___hydrated = newC;
-                        /*var id = map.classes.push(newC)-1;
-                        c.__$id = id;*/
+                        cryoMap[c.$$hashKey] = newC;
                         $rootScope.$apply();
                     });
                     angular.forEach(obj.services, function(s){
                         var newS = new Service(s.name);
                         newS.defaultDuration = s.defaultDuration;
                         self.services.list.push(newS);
-                        s.___hydrated = newS;
-                        /*var id = map.services.push(newS)-1;
-                        s.__$id = id;*/
+                        cryoMap[s.$$hashKey] = newS;
                         $rootScope.$apply();
                     });
                     angular.forEach(obj.students, function(s){
-                        var classy = s.class.___hydrated,
+                        var classy = s.class ? cryoMap[s.class.$$hashKey] : null,
                             newS = new Student(s.firstName, s.lastName, classy);
                         self.students.list.push(newS);
-                        classy.students.push(newS);
-                        s.___hydrated = newS;
-                        /*var id = map.students.push(newS)-1;
-                        s.__$id = id;*/
+                        if (classy) { classy.students.push(newS); }
+                        cryoMap[s.$$hashKey] = newS;
                         $rootScope.$apply();
                     });
-
-                    /*angular.forEach(obj.students, function(s){
-                        var newS = map.students[s.__$id];
-                        for(var i=0; i < s.serviceReqs.length; i++){
-                            newS.serviceReqs[i].number = s.serviceReqs[i].number;
-                        }
-                        $rootScope.$apply();
-                    });*/
                 }
             };
             input.click();
