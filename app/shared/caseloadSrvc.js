@@ -159,7 +159,15 @@ angular.module('easy-slp-scheduler')
                         var classy = s.class ? cryoMap[s.class.$$hashKey] : null,
                             newS = new Student(s.firstName, s.lastName, classy);
                         self.students.list.push(newS);
+                        $rootScope.$apply();
                         if (classy) { classy.students.push(newS); }
+                        _.each(s.serviceReqs, function(req){
+                            if (req.number !== 0) {
+                                var service = cryoMap[req.service.$$hashKey],
+                                    req2 = _.find(newS.serviceReqs, { service: service });
+                                req2.number = req.number;
+                            }
+                        });
                         cryoMap[s.$$hashKey] = newS;
                         $rootScope.$apply();
                     });
