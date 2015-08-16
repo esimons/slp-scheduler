@@ -1,14 +1,15 @@
 /**
  * Created by Evan on 7/17/2014.
  */
-angular.module("easy-slp-scheduler", [
+angular.module('easy-slp-scheduler', [
     'ui.bootstrap',
     'ui.calendar',
     'ui.router',
-    'ngToast'
+    'ngToast',
+    'angularBootstrapNavTree'
 ])
     .config(function($stateProvider, $urlRouterProvider, ngToastProvider){
-        $urlRouterProvider.otherwise("/caseload");
+        $urlRouterProvider.otherwise('/caseload');
 
         $stateProvider
             .state('classes', {

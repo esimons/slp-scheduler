@@ -7,17 +7,13 @@
                 <span class="fa fa-sort pull-right clickable" ng-click="serviceSort.change()"></span>
                 <button id="autoschedule-btn" class="btn btn-default btn-xs btn-block" ng-click="autoSchedule()">AutoSchedule</button>
             </div>
-            <div class="panel-body">
+            {{selected.student.firstName}} {{selected.student.lastName}} {{selected.serviceReq.service.name}} 
+            <abn-tree tree-data="serviceSort.result" on-select="treeSelect(branch)"></abn-tree>
+            <!-- <div class="panel-body">
                 <div class="list-group">
-                    <!--<a class="list-group-item" ng-repeat="student in serviceSort.get()" href="#">
-                        {{student.firstName}} {{student.lastName}}
-                    </a>-->
-                    <a class="list-group-item" ng-repeat="item in serviceSort.result" ng-click="select(item)" ng-class="{active: isSelected(item)}">
-                        {{item.student.firstName}} {{item.student.lastName}}: {{item.appt.service.name}}
-                        <span class="badge">{{item.count}}</span>
-                    </a>
+                    <div ng-repeat="item in serviceSort.result" ng-include="'app/schedule/scheduleItem.html'"></div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
     <div class="col-sm-9">

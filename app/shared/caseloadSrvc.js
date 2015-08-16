@@ -171,6 +171,7 @@ angular.module('easy-slp-scheduler')
                         cryoMap[s.$$hashKey] = newS;
                         $rootScope.$apply();
                     });
+                    $rootScope.$broadcast('fileLoad');
                 }
             };
             input.click();

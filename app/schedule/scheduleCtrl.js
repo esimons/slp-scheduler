@@ -6,6 +6,8 @@ angular.module('easy-slp-scheduler')
 
         var serviceSort = $scope.serviceSort = new ServiceSort();
 
+        $scope.$on('fileLoad', _.bind($scope.$apply, $scope, serviceSort.refresh));
+
         $scope.event = {
             selected: null,
             select: function(event){
@@ -18,47 +20,37 @@ angular.module('easy-slp-scheduler')
 
         function ServiceSort(){
             var self = this;
-            var index = 0;
+            var index = 1;
             var methods = [
                 byClass, byStudent, byServiceType
             ];
             this.unscheduledCount = 0;
             this.change = function(){
-                (index >= 2) ? index = 0 : index++;
-                self.result = methods[index]();
+                (index >= methods.length) ? index = 0 : index++;
+                self.refresh();
             };
             this.refresh = function(){
                 self.result = methods[index]();
             };
             this.refresh();
 
-            function byClass(){
-                //TODO: This is just a test
-                var arr = [];
-                var totalCount = 0;
-                for(var i=0; i<caseloadService.students.list.length; i++){
-                    for(var j=0; j<caseloadService.students.list[i].serviceAppts.length; j++){
-                        var count = 0;
-                        for(var k=0; k<caseloadService.students.list[i].serviceAppts[j].length; k++){
-                            var appt = caseloadService.students.list[i].serviceAppts[j][k];
-                            if(!appt.start){
-                                if(count < 1){
-                                    arr.push({student: caseloadService.students.list[i], appt: appt, count: 1});
-                                } else {
-                                    var t = arr[arr.length - 1];
-                                    t.count++;
-                                }
-                                count++;
-                                totalCount++;
-                            }
-                        }
-                    }
-                }
-                self.unscheduledCount = totalCount;
-                return arr;
+            function byClass(){                
             }
             function byStudent(){
-                return caseloadService.students.list;
+                return _.map(caseloadService.students.list, function(student){
+                    return {
+                        label: student.firstName + ' ' + student.lastName,
+                        children: _.map(_.filter(student.serviceReqs, 'number'), function(serviceReq){
+                            return {                                
+                                data: {
+                                    serviceReq: serviceReq,
+                                    student: _.omit(student, 'class')
+                                },
+                                label: serviceReq.service.name + ': ' + serviceReq.number // TODO: Get the count right
+                            }
+                        })
+                    };
+                });
             }
             function byServiceType(){
             }
@@ -72,6 +64,9 @@ angular.module('easy-slp-scheduler')
         };
         $scope.isSelected = function(item){
             return item === $scope.selected;
+        };
+        $scope.treeSelect = function(branch) {
+            $scope.selected = branch.data ? branch.data : null;
         };
 
         $scope.calendarConfig = {
@@ -93,16 +88,14 @@ angular.module('easy-slp-scheduler')
             },
             dayClick: calendarOnClick,
             eventDrop: angular.noop,
-            eventResize: angular.noop,
-            eventRender: function(event, element) {
-                /*
+            eventResize: angular.noop/*,
+            eventRender: function(event, element) {                
                 $timeout(function(){
                     //element.append('<ul><li ng-repeat=""')
                     element.attr('popover', 'sweet test');
                     $compile(element)($scope);
-                });
-                */
-            }
+                });                
+            }*/
         };
 
         $scope.zoom = {
