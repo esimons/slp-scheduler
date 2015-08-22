@@ -135,12 +135,15 @@ angular.module('easy-slp-scheduler')
             $scope.calendarConfig.slotHeight = $scope.zoom.levels[index].height;
         });
 
-        function calendarOnClick(event, allDay, jsEvent, view){
-            if($scope.selected){
-                $scope.selected.appt.start = event;
-                $scope.selected.appt.end = new Date(event.getTime() + minsToMillis($scope.selected.appt.service.defaultDuration));
-                $scope.selected.appt.allDay = false;
-                $scope.events.push($scope.selected.appt);
+        function calendarOnClick(date, jsEvent, view){
+            if ($scope.selected){
+                var selected = $scope.selected,
+                    service = selected.serviceReq.service,
+                    start = date,
+                    end = moment(date).add(service.defaultDuration, 'm'),
+                    appt = new caseloadService.Appointment(service, start, end);
+                appt.addStudent(selected.student);
+                $scope.events.push(appt);
                 $scope.selected = null;
                 $scope.serviceSort.refresh();
             }
