@@ -40,15 +40,19 @@ angular.module('easy-slp-scheduler')
                 return _.map(caseloadService.students.list, function(student){
                     return {
                         label: student.firstName + ' ' + student.lastName,
-                        children: _.map(_.filter(student.serviceReqs, 'number'), function(serviceReq){
-                            return {                                
-                                data: {
-                                    serviceReq: serviceReq,
-                                    student: _.omit(student, 'class')
-                                },
-                                label: caseloadService.idMap[serviceReq.serviceId].name + ': ' + serviceReq.number // TODO: Get the count right
-                            }
-                        })
+                        children: _.map(_.filter(student.serviceReqs,
+                            function(serviceReq){
+                                return serviceReq.number - serviceReq.scheduled;
+                            }), 
+                            function(serviceReq){
+                                return {                                
+                                    data: {
+                                        serviceReq: serviceReq,
+                                        student: _.omit(student, 'class')
+                                    },
+                                    label: caseloadService.idMap[serviceReq.serviceId].name + ': ' + (serviceReq.number - serviceReq.scheduled)
+                                }
+                            })
                     };
                 });
             }
@@ -147,9 +151,6 @@ angular.module('easy-slp-scheduler')
                 $scope.events.push(appt);
                 $scope.selected = null;
                 $scope.serviceSort.refresh();
-            }
-            function minsToMillis(mins){
-                return mins * 60000;
             }
         }
 
