@@ -122,6 +122,9 @@ angular.module('easy-slp-scheduler')
                     self.classes.list.length = 0;
                     self.services.list.length = 0;
                     self.students.list.length = 0;
+                    self.appointments.length = 0;
+
+                    Array.prototype.push.apply(self.appointments, obj.appointments);
 
                     $rootScope.$apply();
 
@@ -190,37 +193,38 @@ angular.module('easy-slp-scheduler')
             this.end = end;
             this.serviceId = service.slpId;
             this.studentIds = [];
-            this.addStudent = function(student){
-                this.studentIds.push(student.slpId);
-                student.serviceApptIds.push(this.slpId);
-                _.find(student.serviceReqs, function(serviceReq) {
-                    if (serviceReq.serviceId === this.serviceId) {
-                        serviceReq.scheduled++;
-                        return true;
-                    }
-                }, this);
-            };
-            this.removeStudent = function(student){
-                var index = _.findIndex(this.studentIds, function(id) {
-                    return (student === self.idMap[id]);
-                });
-                this.studentIds.splice(index, 1);
-                index = _.findIndex(student.serviceApptIds, function(id) {
-                    return (this === self.idMap[id]);
-                });
-                student.serviceApptIds.splice(index, 1);
-                if (this.students.length < 1) {
-                    index = self.appointments.list.indexOf(this);
-                    self.appointments.list.splice(index, 1);
-                }
-                _.find(student.serviceReqIds, function(serviceReq) {
-                    if (serviceReq.serviceId === this.serviceId) {
-                        serviceReq.scheduled--;
-                        return true;
-                    }
-                });
-            };
         }
         this.Appointment = Appointment;
+
+        self.addStudentToAppt = function(student, appt) {
+            appt.studentIds.push(student.slpId);
+            student.serviceApptIds.push(appt.slpId);
+            _.find(student.serviceReqs, function(serviceReq) {
+                if (serviceReq.serviceId === appt.serviceId) {
+                    serviceReq.scheduled++;
+                    return true;
+                }
+            });
+        };
+        self.removeStudentFromAppt = function(student, appt) {
+            var index = _.findIndex(appt.studentIds, function(id) {
+                return (student.slpId === id);
+            });
+            appt.studentIds.splice(index, 1);
+            index = _.findIndex(student.serviceApptIds, function(id) {
+                return (appt.slpId === id);
+            });
+            student.serviceApptIds.splice(index, 1);
+            if (appt.studentIds.length < 1) {
+                index = self.appointments.indexOf(appt);
+                self.appointments.splice(index, 1);
+            }
+            _.find(student.serviceReqs, function(serviceReq) {
+                if (serviceReq.serviceId === appt.serviceId) {
+                    serviceReq.scheduled--;
+                    return true;
+                }
+            });
+        };
 
     });

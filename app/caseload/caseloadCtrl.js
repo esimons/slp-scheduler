@@ -59,7 +59,7 @@ angular.module('easy-slp-scheduler')
                 'services already scheduled. Okay if we remove one of those service ' +
                 'appointments for you? Or click cancel, and you can remove an appointment ' +
                 'manually and then re-try the service req adjustment.')) {
-                    appts[0].removeStudent(student);                
+                    caseloadService.removeStudentFromAppt(student, appts[0]);                
                 } else {
                     serviceReq.number++;
                 }
