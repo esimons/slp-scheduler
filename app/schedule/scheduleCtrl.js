@@ -46,7 +46,7 @@ angular.module('easy-slp-scheduler')
                                     serviceReq: serviceReq,
                                     student: _.omit(student, 'class')
                                 },
-                                label: serviceReq.service.name + ': ' + serviceReq.number // TODO: Get the count right
+                                label: caseloadService.idMap[serviceReq.serviceId].name + ': ' + serviceReq.number // TODO: Get the count right
                             }
                         })
                     };
@@ -60,7 +60,8 @@ angular.module('easy-slp-scheduler')
         $scope.select = function(item){
             $scope.selected = item;
             $scope.studentEvents.events = angular.copy(item.student.constraints);
-            $scope.classEvents.events = item.student.class ? angular.copy(item.student.class.constraints) : [];
+            var classId = item.student.classId;
+            $scope.classEvents.events = classId ? angular.copy(caseloadService.idMap[classId].constraints) : [];
         };
         $scope.isSelected = function(item){
             return item === $scope.selected;
@@ -138,7 +139,7 @@ angular.module('easy-slp-scheduler')
         function calendarOnClick(date, jsEvent, view){
             if ($scope.selected){
                 var selected = $scope.selected,
-                    service = selected.serviceReq.service,
+                    service = caseloadService.idMap[selected.serviceReq.serviceId],
                     start = date,
                     end = moment(date).add(service.defaultDuration, 'm'),
                     appt = new caseloadService.Appointment(service, start, end);

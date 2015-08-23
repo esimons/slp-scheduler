@@ -23,9 +23,8 @@ angular.module('easy-slp-scheduler')
                     });
                     // Need to do a full search to figure out what class a student belongs to?
                     // Should fix this. Don't really care if it causes cycles.
-                    var classy = _.find(caseloadService.classes.list, function(classy) {
-                        return _.contains(classy.students, student);
-                    });
+                    var classId = student.classId,
+                        classy = classId ? caseloadService.idMap[classId] : null;
                     if (classy) {
                         _.each(classy.constraints, function(constraint){
                             classEvents.push(_.clone(constraint));
@@ -49,7 +48,10 @@ angular.module('easy-slp-scheduler')
             var student = $scope.students.selected,
                 number = serviceReq.number,
                 service = serviceReq.service,
-                appts = _.where(student.serviceAppts, { service: service });
+                appts = _.chain(student.serviceApptIds)
+                    .map(function(id){ return caseloadService.idMap[id]; })
+                    .filter(function(appt){ return serviceReq.serviceId === appt.serviceId; })
+                    .value();
             if (appts.length > number) {
                 if (window.confirm(
                 'You have reduced a service requirement below the number of ' +
@@ -74,8 +76,9 @@ angular.module('easy-slp-scheduler')
 
             modalInstance.result.then(function(student){
                 $scope.students.list.push(student);
-                if (student.class) {
-                    student.class.students.push(student);
+                if (student.classId) {
+                    var classy = caseloadService.idMap[student.classId]; 
+                    classy.studentIds.push(student.slpId);
                 }
                 $scope.students.select(student);
             })
