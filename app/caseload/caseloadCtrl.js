@@ -9,6 +9,7 @@ angular.module('easy-slp-scheduler')
             'recess'
         ];
 
+        $scope.caseloadService = caseloadService;
         $scope.students = {
             list: caseloadService.students.list,
             selected: null,

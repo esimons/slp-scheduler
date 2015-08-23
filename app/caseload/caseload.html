@@ -33,7 +33,7 @@
             <div class="panel-body">
                 <div class="form-group" ng-repeat="serviceReq in students.selected.serviceReqs">
                     <label>
-                        {{serviceReq.service.name}}
+                        {{$parent.caseloadService.idMap[serviceReq.serviceId].name}}
                         <input type="number" min="0" class="form-control" ng-model="serviceReq.number" ng-change="updateApptCount(serviceReq)">
                     </label>
                 </div>

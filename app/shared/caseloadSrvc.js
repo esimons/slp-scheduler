@@ -33,10 +33,14 @@ angular.module('easy-slp-scheduler')
             if(newVal.length > oldVal.length){
                 var addedStudent = getElemAdded(newVal, oldVal);
 
-                // Add zeroed-out requirements for all service types to the new student
-                _.each(self.services.list, function(service){
-                    addedStudent.serviceReqs.push(new ServiceReq(service));
-                });
+                // TODO: This sucks. I'm checking to see if this is from a load or an actual add.
+                // Need to change my whole approach re: the collection watches.
+                if (addedStudent.serviceReqs.length === 0) {
+                    // Add zeroed-out requirements for all service types to the new student
+                    _.each(self.services.list, function(service){
+                        addedStudent.serviceReqs.push(new ServiceReq(service));
+                    });
+                }
             }
         });
 
@@ -113,6 +117,7 @@ angular.module('easy-slp-scheduler')
                         obj = Cryo.parse(result);
 
                     idPrefix = obj.idPrefix + 1;
+                    self.idMap = obj.idMap;
 
                     self.classes.list.length = 0;
                     self.services.list.length = 0;
