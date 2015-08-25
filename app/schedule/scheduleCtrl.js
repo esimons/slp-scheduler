@@ -48,7 +48,7 @@ angular.module('easy-slp-scheduler')
                                 return {                                
                                     data: {
                                         serviceReq: serviceReq,
-                                        student: _.omit(student, 'class')
+                                        student: student
                                     },
                                     label: caseloadService.idMap[serviceReq.serviceId].name + ': ' + (serviceReq.number - serviceReq.scheduled)
                                 }
@@ -92,15 +92,10 @@ angular.module('easy-slp-scheduler')
                 day: 'dddd'  // Monday
             },
             dayClick: calendarOnClick,
-            eventDrop: angular.noop,
-            eventResize: angular.noop/*,
-            eventRender: function(event, element) {                
-                $timeout(function(){
-                    //element.append('<ul><li ng-repeat=""')
-                    element.attr('popover', 'sweet test');
-                    $compile(element)($scope);
-                });                
-            }*/
+            eventClick: eventOnClick,
+            eventDrop: eventUpdate,
+            eventResize: eventUpdate,
+            eventRender: eventRender
         };
 
         $scope.zoom = {
@@ -147,14 +142,56 @@ angular.module('easy-slp-scheduler')
                     start = date,
                     end = moment(date).add(service.defaultDuration, 'm'),
                     appt = new caseloadService.Appointment(service, start, end);
-                appt.addStudent(selected.student);
-                $scope.events.push(appt);
+                caseloadService.addStudentToAppt(selected.student, appt);
+                caseloadService.appointments.push(appt);
                 $scope.selected = null;
                 $scope.serviceSort.refresh();
             }
         }
 
-        $scope.events = caseloadService.appointments;
+        function eventOnClick(event, jsEvent, view){
+            if ($scope.selected && $scope.selected.serviceReq.serviceId === event.serviceId){
+                caseloadService.addStudentToAppt($scope.selected.student, event);
+                $scope.selected = null;
+                $scope.serviceSort.refresh();
+            }
+        }
+
+        function eventUpdate(event, delta, revertFunc, jsEvent, ui, view) {
+            var appt = caseloadService.idMap[event.slpId];
+            appt.start = event.start;
+            appt.end = event.end;
+        }
+
+        function eventRender(event, element, view){
+            if ((element.height() < 30)) {
+                var studentList = '';
+                angular.forEach(event.studentIds, function(id){
+                    var student = caseloadService.idMap[id];
+                    if (studentList) { studentList += '<br/>'; }
+                    studentList += student.firstName + ' ' + student.lastName;
+                });
+                $timeout(function() {
+                    element.attr('tooltip-html', '\'' + studentList + '\'');
+                    $compile(element)($scope);
+                });
+            } else {                
+                var studentList = $('<ul/>').addClass('fc-student-list')
+                angular.forEach(event.studentIds, function(id){
+                    var student = caseloadService.idMap[id];
+                    $('<li/>').text(student.firstName + ' ' + student.lastName).appendTo(studentList);
+                });
+                element.find('.fc-title').after(studentList);
+            }
+        }
+
+        $scope._events = caseloadService.appointments;
+        $scope.events = [];
+        $scope.$watchCollection('_events', function(newVal){
+            $scope.events.length = 0;
+            Array.prototype.push.apply($scope.events, _.map(caseloadService.appointments, _.clone));
+        });
+
         $scope.studentEvents = {
             events: [],
             editable: false,
