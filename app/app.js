@@ -6,7 +6,7 @@ angular.module('easy-slp-scheduler', [
     'ui.calendar',
     'ui.router',
     'ngToast',
-    'angularBootstrapNavTree'
+    'treeControl'
 ])
     .config(function($stateProvider, $urlRouterProvider, ngToastProvider){
         $urlRouterProvider.otherwise('/caseload');

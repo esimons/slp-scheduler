@@ -37,7 +37,7 @@ angular.module('easy-slp-scheduler')
             function byClass(){                
             }
             function byStudent(){
-                return _.map(caseloadService.students.list, function(student){
+                return _.filter(_.map(caseloadService.students.list, function(student){
                     return {
                         label: student.firstName + ' ' + student.lastName,
                         children: _.map(_.filter(student.serviceReqs,
@@ -54,25 +54,33 @@ angular.module('easy-slp-scheduler')
                                 }
                             })
                     };
+                }), function(node){
+                    return node.children.length;
                 });
             }
             function byServiceType(){
             }
         }
 
-        $scope.selected = null;
-        $scope.select = function(item){
-            $scope.selected = item;
-            $scope.studentEvents.events = angular.copy(item.student.constraints);
-            var classId = item.student.classId;
-            $scope.classEvents.events = classId ? angular.copy(caseloadService.idMap[classId].constraints) : [];
+        $scope.selected = [];
+        $scope.treeOptions = {
+            dirSelectable: false,
+            multiSelection: true
         };
-        $scope.isSelected = function(item){
-            return item === $scope.selected;
-        };
-        $scope.treeSelect = function(branch) {
-            $scope.selected = branch.data ? branch.data : null;
-        };
+        $scope.$watchCollection('selected', function(selected){
+            $scope.studentEvents.events.length = 0;
+            $scope.classEvents.events.length = 0;
+            var classIdsEncountered = {};
+            _.each(selected, function(treeNode) {
+                Array.prototype.push.apply($scope.studentEvents.events, _.map(treeNode.data.student.constraints, _.clone));
+                var classId = treeNode.data.student.classId;
+                if (classId && !classIdsEncountered[classId]) {
+                    var classy = caseloadService.idMap[classId];
+                    Array.prototype.push.apply($scope.classEvents.events, _.map(classy.constraints, _.clone));
+                    classIdsEncountered[classId] = true;
+                }
+            });
+        });
 
         $scope.calendarConfig = {
             height: 700,
@@ -164,25 +172,16 @@ angular.module('easy-slp-scheduler')
         }
 
         function eventRender(event, element, view){
-            if ((element.height() < 30)) {
-                var studentList = '';
-                angular.forEach(event.studentIds, function(id){
-                    var student = caseloadService.idMap[id];
-                    if (studentList) { studentList += '<br/>'; }
-                    studentList += student.firstName + ' ' + student.lastName;
-                });
-                $timeout(function() {
-                    element.attr('tooltip-html', '\'' + studentList + '\'');
-                    $compile(element)($scope);
-                });
-            } else {                
-                var studentList = $('<ul/>').addClass('fc-student-list')
-                angular.forEach(event.studentIds, function(id){
-                    var student = caseloadService.idMap[id];
-                    $('<li/>').text(student.firstName + ' ' + student.lastName).appendTo(studentList);
-                });
-                element.find('.fc-title').after(studentList);
-            }
+            var studentList = '';
+            angular.forEach(event.studentIds, function(id){
+                var student = caseloadService.idMap[id];
+                if (studentList) { studentList += '<br/>'; }
+                studentList += student.firstName + ' ' + student.lastName;
+            });
+            $timeout(function() {
+                element.attr('tooltip-html', '\'' + studentList + '\'');
+                $compile(element)($scope);
+            });
         }
 
         $scope._events = caseloadService.appointments;
@@ -195,13 +194,18 @@ angular.module('easy-slp-scheduler')
         $scope.studentEvents = {
             events: [],
             editable: false,
-            color: 'gray'
+            color: 'rgba(125,125,125,0.25)',
+            textColor: 'rgb(60,60,60)'
         };
         $scope.classEvents = {
             events: [],
             editable: false,
-            color: 'gray'
+            color: 'rgba(25,25,25,0.2)',
+            textColor: 'rgb(60,60,60)'
         };
+        $scope.$watchCollection('studentEvents', function(newVal) {
+            console.log(newVal);
+        });
         $scope.eventSources = [$scope.events, $scope.studentEvents, $scope.classEvents];
 
         $scope.autoSchedule = function(){

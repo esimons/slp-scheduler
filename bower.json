@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "dependencies": {
     "angular-bootstrap": "~0.13.3",
-    "angular-bootstrap-nav-tree": "*",
     "angular-ui-router": "~0.2.15",
     "angular": "~1.4.1",
     "bootstrap": "~3.3.5",
@@ -13,7 +12,8 @@
     "fontawesome": "~4.4.0",
     "ngtoast": "~1.5.5",
     "cryo": "*",
-    "underscore": "1.8.3"
+    "underscore": "1.8.3",
+    "angular-tree-control": "~0.2.15"
   },
   "private": true,
   "resolutions": {

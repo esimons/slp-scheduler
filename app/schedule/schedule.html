@@ -8,7 +8,9 @@
                 <button id="autoschedule-btn" class="btn btn-default btn-xs btn-block" ng-click="autoSchedule()">AutoSchedule</button>
             </div>
             {{selected.student.firstName}} {{selected.student.lastName}} {{selected.serviceReq.service.name}} 
-            <abn-tree tree-data="serviceSort.result" on-select="treeSelect(branch)"></abn-tree>
+            <div treecontrol class="tree-classic" tree-model="serviceSort.result" selected-nodes="selected" options="treeOptions">
+                {{node.label}}
+            </div>
             <!-- <div class="panel-body">
                 <div class="list-group">
                     <div ng-repeat="item in serviceSort.result" ng-include="'app/schedule/scheduleItem.html'"></div>
