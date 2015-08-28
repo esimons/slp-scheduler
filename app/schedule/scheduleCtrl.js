@@ -65,7 +65,11 @@ angular.module('easy-slp-scheduler')
         $scope.selected = [];
         $scope.treeOptions = {
             dirSelectable: false,
-            multiSelection: true
+            multiSelection: true,
+            filter: function(node) {
+                var selected = $scope.selected[0];
+                return !selected || (node.data.serviceReq.serviceId === selected.data.serviceReq.serviceId);
+            }
         };
         $scope.$watchCollection('selected', function(selected){
             $scope.studentEvents.events.length = 0;
@@ -203,9 +207,6 @@ angular.module('easy-slp-scheduler')
             color: 'rgba(25,25,25,0.2)',
             textColor: 'rgb(60,60,60)'
         };
-        $scope.$watchCollection('studentEvents', function(newVal) {
-            console.log(newVal);
-        });
         $scope.eventSources = [$scope.events, $scope.studentEvents, $scope.classEvents];
 
         $scope.autoSchedule = function(){
