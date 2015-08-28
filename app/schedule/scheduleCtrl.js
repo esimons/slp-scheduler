@@ -68,7 +68,7 @@ angular.module('easy-slp-scheduler')
             multiSelection: true,
             filter: function(node) {
                 var selected = $scope.selected[0];
-                return !selected || (node.data.serviceReq.serviceId === selected.data.serviceReq.serviceId);
+                return !selected || node.children || (node.data.serviceReq.serviceId === selected.data.serviceReq.serviceId);
             }
         };
         $scope.$watchCollection('selected', function(selected){
@@ -148,23 +148,30 @@ angular.module('easy-slp-scheduler')
         });
 
         function calendarOnClick(date, jsEvent, view){
-            if ($scope.selected){
+            if ($scope.selected.length){
                 var selected = $scope.selected,
-                    service = caseloadService.idMap[selected.serviceReq.serviceId],
+                    service = caseloadService.idMap[selected[0].data.serviceReq.serviceId],
                     start = date,
                     end = moment(date).add(service.defaultDuration, 'm'),
                     appt = new caseloadService.Appointment(service, start, end);
-                caseloadService.addStudentToAppt(selected.student, appt);
+                _.each(selected, function(node) {
+                    caseloadService.addStudentToAppt(node.data.student, appt);
+                });
                 caseloadService.appointments.push(appt);
-                $scope.selected = null;
+                $scope.selected.length = 0;
                 $scope.serviceSort.refresh();
             }
         }
 
         function eventOnClick(event, jsEvent, view){
-            if ($scope.selected && $scope.selected.serviceReq.serviceId === event.serviceId){
-                caseloadService.addStudentToAppt($scope.selected.student, event);
-                $scope.selected = null;
+            var noStudentOverlap = !_.intersection(_.map($scope.selected, function(node) {
+                return node.data.student.slpId;
+            }), event.studentIds).length;
+            if (noStudentOverlap && $scope.selected.length && $scope.selected[0].data.serviceReq.serviceId === event.serviceId){
+                _.each($scope.selected, function(node) {
+                    caseloadService.addStudentToAppt(node.data.student, event);
+                });
+                $scope.selected.length = 0;
                 $scope.serviceSort.refresh();
             }
         }
