@@ -113,38 +113,18 @@ angular.module('easy-slp-scheduler')
         $scope.zoom = {
             current: 1,
             slotMinutes: [
-                60,
-                30,
-                20,
-                15,
-                10,
-                5
-            ],
-            slotHeight: [
-                40,
-                45,
-                50,
-                55,
-                60,
-                65,
-                70,
-                75
-            ],
-            levels: []
+                '00:60:00',
+                '00:30:00',
+                '00:20:00',
+                '00:15:00',
+                '00:10:00',
+                '00:05:00'
+            ]
         };
-        for(var i in $scope.zoom.slotMinutes){
-            for(var j in $scope.zoom.slotHeight){
-                $scope.zoom.levels.push({
-                    minutes: $scope.zoom.slotMinutes[i],
-                    height: $scope.zoom.slotHeight[j]
-                })
-            }
-        }
 
         $scope.$watch('zoom.current', function(newVal){
             var index = parseInt(newVal);
-            $scope.calendarConfig.slotMinutes = $scope.zoom.levels[index].minutes;
-            $scope.calendarConfig.slotHeight = $scope.zoom.levels[index].height;
+            $scope.calendarConfig.slotDuration = $scope.zoom.slotMinutes[index];
         });
 
         function calendarOnClick(date, jsEvent, view){
