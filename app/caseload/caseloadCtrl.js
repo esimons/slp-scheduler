@@ -6,7 +6,10 @@ angular.module('easy-slp-scheduler')
 
         var defaultConstraintTypes = [
             'lunch',
-            'recess'
+            'recess',
+            'math',
+            'specialist',
+            'misc'
         ];
 
         $scope.caseloadService = caseloadService;
