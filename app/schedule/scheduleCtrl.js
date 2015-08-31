@@ -125,6 +125,7 @@ angular.module('easy-slp-scheduler')
         $scope.$watch('zoom.current', function(newVal){
             var index = parseInt(newVal);
             $scope.calendarConfig.slotDuration = $scope.zoom.slotMinutes[index];
+            refreshCalendarAppts();
         });
 
         function calendarOnClick(date, jsEvent, view){
@@ -182,10 +183,12 @@ angular.module('easy-slp-scheduler')
 
         $scope._events = caseloadService.appointments;
         $scope.events = [];
-        $scope.$watchCollection('_events', function(newVal){
+        $scope.$watchCollection('_events', refreshCalendarAppts);
+
+        function refreshCalendarAppts() {
             $scope.events.length = 0;
-            Array.prototype.push.apply($scope.events, _.map(caseloadService.appointments, _.clone));
-        });
+            Array.prototype.push.apply($scope.events, _.map(caseloadService.appointments, _.clone));            
+        }
 
         $scope.studentEvents = {
             events: [],
