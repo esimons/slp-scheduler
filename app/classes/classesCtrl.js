@@ -30,6 +30,7 @@ angular.module('easy-slp-scheduler')
                 if (this.selected == arr[0]) {
                     this.select(null);
                 }
+                delete caseloadService.idMap[arr[0].slpId];                
             }
         };
 

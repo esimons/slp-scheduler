@@ -164,15 +164,20 @@ angular.module('easy-slp-scheduler')
         }
 
         function eventOnClick(event, jsEvent, view){
-            var noStudentOverlap = !_.intersection(_.map($scope.selected, function(node) {
-                return node.data.student.slpId;
-            }), event.studentIds).length;
-            if (noStudentOverlap && $scope.selected.length && $scope.selected[0].data.serviceReq.serviceId === event.serviceId){
-                _.each($scope.selected, function(node) {
-                    caseloadService.addStudentToAppt(node.data.student, event);
-                });
-                $scope.selected.length = 0;
-                $scope.serviceSort.refresh();
+            if (jsEvent.ctrlKey) {
+                caseloadService.deleteAppt(event);
+                serviceSort.refresh();
+            } else {
+                var noStudentOverlap = !_.intersection(_.map($scope.selected, function(node) {
+                    return node.data.student.slpId;
+                }), event.studentIds).length;
+                if (noStudentOverlap && $scope.selected.length && $scope.selected[0].data.serviceReq.serviceId === event.serviceId){
+                    _.each($scope.selected, function(node) {
+                        caseloadService.addStudentToAppt(node.data.student, event);
+                    });
+                    $scope.selected.length = 0;
+                    $scope.serviceSort.refresh();
+                }
             }
         }
 

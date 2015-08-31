@@ -61,20 +61,34 @@ angular.module('easy-slp-scheduler')
                 // Remove any appoints or service requirements of the removed service type
                 _.each(self.students.list, function(student){
                     student.serviceReqs = _.reject(student.serviceReqs, function(req){
-                        return req.service === removedService;
+                        return req.serviceId === removedService.slpId;
                     });
                     student.serviceAppts = _.reject(student.serviceAppts, function(appt){
-                        return appt.service === removedService;
+                        return appt.serviceId === removedService.slpId;
                     });
                 });
                 self.appointments = _.reject(self.appointments, function(appt){
-                    return appt.service === removedService;
+                    return appt.serviceId === removedService.slpId;
                 });
             }
         });
 
         $rootScope.$watchCollection('_modelObs.classes', function(newVal, oldVal){
-            /* Sit on your butt */
+            /* Handle the addition of new classes */
+            if (newVal.length > oldVal.length){
+                /* Sit on your butt */
+            }
+            /* Handle the deletion of classes */
+            else if (newVal.length < oldVal.length){
+                var removedClass = getElemRemoved(newVal, oldVal);
+
+                // Remove any appoints or service requirements of the removed service type
+                _.each(self.students.list, function(student){
+                    if (student.classId === removedClass.slpId) {
+                        student.classId = null;
+                    }
+                });
+            }
         });
 
         // TODO: If you make this return an array, and handle as such above, we can 
@@ -216,14 +230,21 @@ angular.module('easy-slp-scheduler')
             });
             student.serviceApptIds.splice(index, 1);
             if (appt.studentIds.length < 1) {
-                index = self.appointments.indexOf(appt);
+                index = self.appointments.indexOf(self.idMap[appt.slpId]);
                 self.appointments.splice(index, 1);
+                delete self.idMap[appt.slpId];
             }
             _.find(student.serviceReqs, function(serviceReq) {
                 if (serviceReq.serviceId === appt.serviceId) {
                     serviceReq.scheduled--;
                     return true;
                 }
+            });
+        };
+        self.deleteAppt = function(appt) {
+            _.each(_.clone(appt.studentIds), function(id) {
+                var student = self.idMap[id];
+                self.removeStudentFromAppt(student, appt);
             });
         };
 
