@@ -69,7 +69,8 @@ angular.module('easy-slp-scheduler')
         };
 
         $scope.calendarConfig = {
-            height: 450,
+            minTime: '05:00:00',
+            maxTime: '18:00:00',
             editable: true,
             header: {
                 left: '',

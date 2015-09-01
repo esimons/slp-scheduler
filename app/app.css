@@ -26,27 +26,23 @@
     margin-top: 5px;
 }
 
-#your-schedule.slot-height-40 .fc-agenda-slots td div {
-    height: 40px !important;
-}
-#your-schedule.slot-height-45 .fc-agenda-slots td div {
-    height: 45px !important;
-}
-#your-schedule.slot-height-50 .fc-agenda-slots td div {
-    height: 50px !important;
-}
-#your-schedule.slot-height-55 .fc-agenda-slots td div {
-    height: 55px !important;
-}
-#your-schedule.slot-height-60 .fc-agenda-slots td div {
-    height: 60px !important;
-}
-#your-schedule.slot-height-65 .fc-agenda-slots td div {
-    height: 65px !important;
-}
-#your-schedule.slot-height-70 .fc-agenda-slots td div {
-    height: 70px !important;
-}
-#your-schedule.slot-height-75 .fc-agenda-slots td div {
-    height: 75px !important;
+@media print {
+    .fc-scroller {
+        height: initial !important;
+    }
+    .fc-time-grid-event .fc-time, .fc-time-grid-event .fc-title {
+        display: inline-block !important;
+        vertical-align: top !important;
+        font-size: .75em !important;
+        padding: 0 2px !important;
+        white-space: nowrap !important;
+    }
+    .fc-time-grid-event .fc-resizer {
+        display: none;
+    }
+    .event-students {
+        font-size: .75em;
+        margin-left: .75em;
+        margin-top: -0.25em;
+    }
 }

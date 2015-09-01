@@ -87,7 +87,8 @@ angular.module('easy-slp-scheduler')
         });
 
         $scope.calendarConfig = {
-            height: 700,
+            minTime: '05:00:00',
+            maxTime: '18:00:00',
             editable: true,
             header: {
                 left: '',
@@ -177,6 +178,8 @@ angular.module('easy-slp-scheduler')
             });
             $timeout(function() {
                 element.attr('tooltip-html', '\'' + studentList + '\'');
+                var listForPrint = $('<div/>').addClass('visible-print-block event-students').append(studentList);
+                $(element).find('.fc-title').after(listForPrint);
                 $compile(element)($scope);
             });
         }
