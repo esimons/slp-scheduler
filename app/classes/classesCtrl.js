@@ -12,6 +12,34 @@ angular.module('easy-slp-scheduler')
             'misc'
         ];
 
+        $scope.$on('fileLoad', function refresh(){
+            $scope.idMap = caseloadService.idMap;
+        });
+
+        $scope.idMap = caseloadService.idMap;
+
+        $scope.addStudent = function(studentId) {
+            var selected = $scope.classes.selected;
+            if (selected) {
+                selected.studentIds.push(studentId);
+                caseloadService.idMap[studentId].classId = selected.slpId;
+            }            
+        };
+
+        $scope.removeStudent = function(studentId) {
+            var selected = $scope.classes.selected;
+            if (selected) {
+                var studentIndex = selected.studentIds.indexOf(studentId),
+                    student = caseloadService.idMap[studentId];
+                selected.studentIds.splice(studentIndex, 1);
+                student.classId = null;
+            }
+        };
+
+        $scope.listFreeStudents = function() {
+            return _.filter(caseloadService.students.list, _.negate(_.property('classId')));
+        };
+
         $scope.classes = {
             list: caseloadService.classes.list,
             selected: null,

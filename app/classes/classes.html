@@ -22,23 +22,33 @@
         </div>
     </div>
     <div class="col-sm-3" ng-show="classes.selected">
-        <!--<div class="panel panel-primary panel-well">
+        <div class="panel panel-primary panel-well">
             <div class="panel-heading">
                 <div class="row">
                     <div class="col-sm-10">
-                        <span class="h3 panel-title">{{students.selected.firstName}}'s Services (per week)</span>
+                        <span class="h3 panel-title">Students in {{classes.selected.name}}</span>
+                    </div>
+                    <div class="col-sm-2">
+                        <span dropdown>
+                            <a href id="simple-dropdown" dropdown-toggle style="color:white">+</a>
+                            <ul class="dropdown-menu" aria-labelledby="simple-dropdown">
+                                <li ng-repeat="student in listFreeStudents()">
+                                    <a href ng-click="$parent.addStudent(student.slpId)">{{student.firstName}} {{student.lastName}}</a>
+                                </li>
+                            </ul>
+                        </span>
                     </div>
                 </div>
             </div>
             <div class="panel-body">
-                <div class="form-group" ng-repeat="service in students.selected.services">
-                    <label>
-                        {{service.name}}
-                        <input type="number" min="0" class="form-control" ng-model="service.number">
-                    </label>
+                <div class="list-group">
+                    <a class="list-group-item" ng-if="classes.list.length > 0" ng-repeat="studentId in classes.selected.studentIds">
+                        {{$parent.idMap[studentId].firstName}} {{$parent.idMap[studentId].lastName}}
+                        <div class="pull-right fa fa-times fa-lg hover-delete" ng-click="$parent.removeStudent(studentId)"></div>
+                    </a>
                 </div>
             </div>
-        </div>-->
+        </div>
     </div>
     <div class="col-sm-6" ng-if="classes.selected">
         <div class="panel panel-primary panel-well">
